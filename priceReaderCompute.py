@@ -7,8 +7,6 @@ urlPriceBasePublicAPI='https://azure.microsoft.com/api/v2/pricing/virtual-machin
 urlPrice1YeaPublicAPI='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base-one-year/calculator/?culture=en-us&discount=mosp'
 urlPrice3YeaPublicAPI='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base-three-year/calculator/?culture=en-us&discount=mosp'
 
-region = 'europe-west'
-
 def get3YeaPrice(sizeName, regionSizes3Year):
 	try:
 		price = regionSizes3Year[sizeName]
@@ -51,7 +49,7 @@ def flagBurstable(formattedVMSize):
 	else:
 		return "NO"
 	
-def getPriceMatrix():
+def getPriceMatrix(region):
 	
 	with urllib.request.urlopen(urlPrice1YeaPublicAPI) as url:
 		data1YeaPrice = json.loads(url.read().decode())

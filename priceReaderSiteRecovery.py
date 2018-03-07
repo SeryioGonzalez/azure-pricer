@@ -2,9 +2,10 @@ import urllib.request
 import json
 
 urlPriceManagedDiskPublicAPI='https://azure.microsoft.com/api/v2/pricing/site-recovery/calculator/?culture=en-us&discount=mosp'
-region = 'europe-west'
 
-def getPriceMatrix():
+#{recoveryName: price}
+
+def getPriceMatrix(region):
 	
 	with urllib.request.urlopen(urlPriceManagedDiskPublicAPI) as url:
 		dataBasePrice = json.loads(url.read().decode())
