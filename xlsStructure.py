@@ -5,16 +5,36 @@ class xlsStructure:
 	rowsForVMInput=250
 
 	alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ' ]
+		
+	assumptions = {
+		'firstCellColumn':0,
+		'firstCellRow':1,		
+		'header': {
+			'width': 2,
+			'title': 'ASSUMPTIONS'
+		},
+		'rows': {
+			'PERF':    {'name': 'PERF. TOLERANCE', 'order':1},
+			'RESINST': {'name': 'RES. INST.',      'order':2},
+			'USD2EURO':{'name': 'USD TO EURO',     'order':3}
+		}
+	}
 	
-	def getCustomerDataColumnPositionInExcel(columnIndex):
-		return columnIndex + xlsStructure.firstColumnCustomerInput
-		
-	def getCalculationColumnPositionInExcel(columnIndex):
-		return columnIndex + xlsStructure.firstColumnCustomerInput + len(xlsStructure.customerInputColumns)
-
-	def getColumnLetterFromIndex(columnIndex):
-		return alphabet[columnIndex]	
-		
+	costSummary = {
+		'firstCellColumn':0,
+		'firstCellRow':7,		
+		'header': {
+			'width': 2,
+			'title': 'YEAR TOTALS (EUROS)'
+		},
+		'rows': {
+			'COMPUTE': {'name': 'COMPUTE', 'order':1},
+			'STORAGE': {'name': 'STORAGE', 'order':2},
+			'ASR':     {'name': 'ASR',     'order':3},
+			'TOTAL':   {'name': 'TOTAL',   'order':4}
+		}
+	}
+	
 	customerInputColumns = {
 		'VM NAME' : {
 			'alias' : 'VM NAME',
@@ -154,3 +174,27 @@ class xlsStructure:
 		'width' : 10,
 		'firstColumnIndex' : firstColumnCustomerInput + len(customerInputColumns) + len(VMCalculationColumns)
 	}
+	
+	
+	def getCustomerDataColumnPositionInExcel(columnIndex):
+		return columnIndex + xlsStructure.firstColumnCustomerInput
+		
+	def getCalculationColumnPositionInExcel(columnIndex):
+		return columnIndex + xlsStructure.firstColumnCustomerInput + len(xlsStructure.customerInputColumns)
+
+	def getColumnLetterFromIndex(columnIndex):
+		return alphabet[columnIndex]	
+	
+	def getAssumptionValueCell(assumption):
+		firstAssumptionRow = xlsStructure.assumptions['firstCellRow']
+		firstAssumptionColumn = xlsStructure.assumptions['firstCellColumn']
+		relativeAssumptionRow = xlsStructure.assumptions['rows'][assumption]['order']
+		
+		assumptionRow = firstAssumptionRow + relativeAssumptionRow
+		assumptionColumn = firstAssumptionColumn + 1
+		assumptionColumnLetter = xlsStructure.alphabet[assumptionColumn]
+		
+		cellInText = "$" + assumptionColumnLetter + "$" + str(assumptionRow + 1)
+
+		return cellInText
+		
