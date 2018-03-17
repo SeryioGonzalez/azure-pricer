@@ -176,12 +176,18 @@ class xlsStructure:
 	}	
 	
 	#BLOCK 5
-	ASRColumn = {
+	ASRColumns = {
 		'firstCellRow': 0,	
 		'name' : 'ASR',
 		'width' : 8,
 		'firstColumnIndex' : managedDataDiskColumns['firstColumnIndex'] + len(priceReaderManagedDisk.standardDiskSizes )  + len(priceReaderManagedDisk.premiumDiskSizes )
 	}	
+	
+	#BLOCK 7
+	dataDiskSummary = {
+		'firstCellRow': 15
+	}
+	
 	
 	#BLOCK 9	
 	costSummary = {
