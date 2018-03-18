@@ -170,11 +170,6 @@ for column in xls.VMCalculationColumns['columns']:
 	customerVMDataExcelTab.write(xls.VMCalculationColumns['firstCellRow'], columnPositon, columnName, selectHeaderStyle)
 
 #VIRTUAL MACHINE FORMULAS
-formulaVMBaseMinPricePattern="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${0},  'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1}), _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${0}, 'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1})),\"\")"
-formulaVM1YMinPricePattern  ="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${0},  'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,     'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1}),   _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${0},   'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,   'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1})),\"\")"
-formulaVM3YMinPricePattern  ="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-3Y'!C$2:C${0},  'azure-vm-prices-3Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,     'azure-vm-prices-3Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-3Y'!D$2:D${0},J{1},   'azure-vm-prices-3Y'!E$2:E${0},K{1}),   _xlfn.MINIFS('azure-vm-prices-3Y'!I$2:I${0},   'azure-vm-prices-3Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,   'azure-vm-prices-3Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-3Y'!D$2:D${0},J{1},   'azure-vm-prices-3Y'!E$2:E${0},K{1})),\"\")"
-
-##AFTER HERE OK
 formulaVMBaseNamePattern    ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-base'!G$2:H${5}, 2, 0),\"\")"
 formulaVM1YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-1Y'!G$2:H${5}  , 2, 0),\"\")"
 formulaVM3YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-3Y'!G$2:H${5}  , 2, 0),\"\")"
@@ -182,19 +177,21 @@ formulaVMYearPAYGPattern    ="=IF({0}{1}=\"YES\",{2}{1}*{3}{1}*12,\"\")"
 formulaVMYear1YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
 formulaVMYear3YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
 formulaBestPricePattern     ="=IF({0}{1}=\"YES\",IF({2}=\"YES\", MIN({3}{1}:{4}{1}), {3}{1}),\"\")"
-	
+formulaVMBaseMinPricePattern="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!D$2:D${3},{7}{1}, 'azure-vm-prices-base'!E$2:E${3},{8}{1}), _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!D$2:D${3},{7}{1}, 'azure-vm-prices-base'!E$2:E${3},{8}{1})),\"\")"
+formulaVM1YMinPricePattern  ="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${3},   'azure-vm-prices-1Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!B$2:B${3}  ,\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-1Y'!E$2:E${3},  {8}{1}), _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${3},   'azure-vm-prices-1Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!B$2:B${3},  \">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-1Y'!E$2:E${3},  {8}{1})),\"\")"
+formulaVM3YMinPricePattern  ="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , _xlfn.MINIFS('azure-vm-prices-3Y'!C$2:C${3},   'azure-vm-prices-3Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!B$2:B${3}  ,\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-3Y'!E$2:E${3},  {8}{1}), _xlfn.MINIFS('azure-vm-prices-3Y'!I$2:I${3},   'azure-vm-prices-3Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!B$2:B${3},  \">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-3Y'!E$2:E${3},  {8}{1})),\"\")"
+
 #FORMULAS AND STYLE FOR CALCULATIONS
 for rowIndex in range(1,xls.rowsForVMInput):
-	formulaVMBaseMinPrice=formulaVMBaseMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
+	formulaVMBaseMinPrice=formulaVMBaseMinPricePattern.format(dataOKColumn, rowIndex+1, bSeriesColumn, numVmSizes, CPUColumn, perfGainValueCell, memColumn, SAPColumn, GPUColumn)
 	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 1, formulaVMBaseMinPrice, selecBody)
 	
-	formulaVM1YMinPrice=formulaVM1YMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
+	formulaVM1YMinPrice=formulaVM1YMinPricePattern.format(dataOKColumn, rowIndex+1, bSeriesColumn, numVmSizes, CPUColumn, perfGainValueCell, memColumn, SAPColumn, GPUColumn)
 	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 3, formulaVM1YMinPrice, selecBody)
-
-	formulaVM3YMinPrice=formulaVM3YMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
-	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 5, formulaVM3YMinPrice, selecBody)
 	
-##AFTER HERE OK
+	formulaVM3YMinPrice=formulaVM3YMinPricePattern.format(dataOKColumn, rowIndex+1, bSeriesColumn, numVmSizes, CPUColumn, perfGainValueCell, memColumn, SAPColumn, GPUColumn)
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 5, formulaVM3YMinPrice, selecBody)
+
 	formulaVMBaseName  =formulaVMBaseNamePattern.format(dataOKColumn, rowIndex+1, xls.alphabet[firstCalculationColumnIndex + 1] , SAPColumn , GPUColumn , numVmSizes+1 )
 	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 0, formulaVMBaseName,   selecBody)		
 
