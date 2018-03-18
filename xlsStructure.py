@@ -2,7 +2,6 @@ import priceReaderManagedDisk
 
 class xlsStructure:
 
-	firstColumnCustomerInput=3
 	rowsForVMInput=250
 
 	alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ' ]
@@ -27,7 +26,8 @@ class xlsStructure:
 	
 	#BLOCK 2
 	customerInputColumns = {
-		'firstCellRow':0,		
+		'firstCellRow':0,
+		'firstColumnIndex' : 3,	
 		'columns': {
 			'VM NAME' : {
 				'alias' : 'VM NAME',
@@ -112,7 +112,8 @@ class xlsStructure:
 
 	#BLOCK 3	
 	VMCalculationColumns = {
-		'firstCellRow':0,	
+		'firstCellRow':0,
+		'firstColumnIndex' : customerInputColumns['firstColumnIndex'] + len(customerInputColumns['columns']),			
 		'columns': {
 			'BEST SIZE PAYG' : {
 				'alias' : 'BEST SIZE PAYG',
@@ -172,7 +173,7 @@ class xlsStructure:
 		'firstCellRow': 0,	
 		'prefix' : 'DATA - ',
 		'width' : 10,
-		'firstColumnIndex' : firstColumnCustomerInput + len(customerInputColumns['columns']) + len(VMCalculationColumns['columns'])
+		'firstColumnIndex' : customerInputColumns['firstColumnIndex'] + len(customerInputColumns['columns']) + len(VMCalculationColumns['columns'])
 	}	
 	
 	#BLOCK 5
@@ -246,11 +247,11 @@ class xlsStructure:
 	
 	#GIVEN A CUSTOMER DATA COLUMN RELATIVE INDEX, GET ABSOLUTE SPREADSHEET POSITION
 	def getCustomerDataColumnPositionInExcel(columnIndex):
-		return columnIndex + xlsStructure.firstColumnCustomerInput
+		return columnIndex + xlsStructure.customerInputColumns['firstColumnIndex']
 
 	#GIVEN A CALCULATION COLUMN RELATIVE INDEX, GET ABSOLUTE SPREADSHEET POSITION		
 	def getCalculationColumnPositionInExcel(columnIndex):
-		return columnIndex + xlsStructure.firstColumnCustomerInput + len(xlsStructure.customerInputColumns['columns'])
+		return columnIndex + xlsStructure.customerInputColumns['firstColumnIndex'] + len(xlsStructure.customerInputColumns['columns'])
 
 	#GIVEN AN ABSOLUTE INTEGER INDEX, GET COLUMN
 	def getColumnLetterFromIndex(columnIndex):

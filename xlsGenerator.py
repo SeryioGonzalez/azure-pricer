@@ -12,17 +12,14 @@ workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quotes-{}.xlsx'
 today = datetime.date.today().strftime('%d%m%y')
 region = 'europe-west'
 
-numOfCustomerInputParams=12
-firstColumnCalculations=xls.firstColumnCustomerInput + numOfCustomerInputParams
-
 #KEY CELLS
 perfGainValueCell=xls.getAssumptionValueCell('PERF')
 resInstValueCell=xls.getAssumptionValueCell('RESINST')
 currencyRateCell=xls.getAssumptionValueCell('USD2EURO')
 #KEY COLUMN INDEX
-VMNameColumn= xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['VM NAME']['index']))
-CPUColumn=    xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['CPUs']['index']))
-memColumn=    xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['Mem(GB)']['index']))
+VMNameColumn=      xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['VM NAME']['index']))
+CPUColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['CPUs']['index']))
+memColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['Mem(GB)']['index']))
 dataDiskSizeColumn=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['DATA STORAGE']['index']))
 dataDiskTypeColumn=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['DATA STORAGE TYPE']['index']))
 osDiskTypeColumn=  xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['OS STORAGE TYPE']['index']))
@@ -31,8 +28,9 @@ GPUColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositio
 ASRColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ASR']['index']))
 hoursMonthColumn  =xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['HOURS/MONTH']['index']))
 bSeriesColumn     =xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['USE B SERIES']['index']))
+dataOKColumn=      xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ALL DATA OK']['index']))
 
-dataOKColumn=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ALL DATA OK']['index']))
+firstCalculationColumnIndex=xls.VMCalculationColumns['firstColumnIndex']
 columnBestVMPrice = xls.getVMCalculationColumn('BEST PRICE')
 #KEY DATA
 totalNumDisks = len(priceReaderManagedDisk.standardDiskSizes) + len(priceReaderManagedDisk.premiumDiskSizes)
@@ -159,6 +157,7 @@ cellRange='{0}{1}:{0}{2}'.format(dataOKColumn , xls.customerInputColumns['firstC
 customerVMDataExcelTab.conditional_format(cellRange, {'type': 'cell', 'criteria': 'equal to', 'value':    '\"YES\"', 'format':   dataOKFormat})
 
 #6 - BLOCK 3 - CREATE VM CALCULATION COLUMNS
+	#PUT HEADERS
 for column in xls.VMCalculationColumns['columns']:
 	#GET COLUMN DATA
 	columnWidth = xls.VMCalculationColumns['columns'][column]['width']
@@ -169,6 +168,53 @@ for column in xls.VMCalculationColumns['columns']:
 	customerVMDataExcelTab.set_column(columnPositon, columnPositon, columnWidth)
 	#SET HEADER
 	customerVMDataExcelTab.write(xls.VMCalculationColumns['firstCellRow'], columnPositon, columnName, selectHeaderStyle)
+
+#VIRTUAL MACHINE FORMULAS
+formulaVMBaseMinPricePattern="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${0},  'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1}), _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${0}, 'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1})),\"\")"
+formulaVM1YMinPricePattern  ="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${0},  'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,     'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1}),   _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${0},   'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,   'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1})),\"\")"
+formulaVM3YMinPricePattern  ="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-3Y'!C$2:C${0},  'azure-vm-prices-3Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,     'azure-vm-prices-3Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-3Y'!D$2:D${0},J{1},   'azure-vm-prices-3Y'!E$2:E${0},K{1}),   _xlfn.MINIFS('azure-vm-prices-3Y'!I$2:I${0},   'azure-vm-prices-3Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,   'azure-vm-prices-3Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-3Y'!D$2:D${0},J{1},   'azure-vm-prices-3Y'!E$2:E${0},K{1})),\"\")"
+
+##AFTER HERE OK
+formulaVMBaseNamePattern    ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-base'!G$2:H${5}, 2, 0),\"\")"
+formulaVM1YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-1Y'!G$2:H${5}  , 2, 0),\"\")"
+formulaVM3YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-3Y'!G$2:H${5}  , 2, 0),\"\")"
+formulaVMYearPAYGPattern    ="=IF({0}{1}=\"YES\",{2}{1}*{3}{1}*12,\"\")"
+formulaVMYear1YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
+formulaVMYear3YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
+formulaBestPricePattern     ="=IF({0}{1}=\"YES\",IF({2}=\"YES\", MIN({3}{1}:{4}{1}), {3}{1}),\"\")"
+	
+#FORMULAS AND STYLE FOR CALCULATIONS
+for rowIndex in range(1,xls.rowsForVMInput):
+	formulaVMBaseMinPrice=formulaVMBaseMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 1, formulaVMBaseMinPrice, selecBody)
+	
+	formulaVM1YMinPrice=formulaVM1YMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 3, formulaVM1YMinPrice, selecBody)
+
+	formulaVM3YMinPrice=formulaVM3YMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 5, formulaVM3YMinPrice, selecBody)
+	
+##AFTER HERE OK
+	formulaVMBaseName  =formulaVMBaseNamePattern.format(dataOKColumn, rowIndex+1, xls.alphabet[firstCalculationColumnIndex + 1] , SAPColumn , GPUColumn , numVmSizes+1 )
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 0, formulaVMBaseName,   selecBody)		
+
+	formulaVM1YName  =formulaVM1YNamePattern.format(    dataOKColumn, rowIndex+1, xls.alphabet[firstCalculationColumnIndex + 3] , SAPColumn , GPUColumn , numVmSizes+1 )
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 2, formulaVM1YName,   selecBody)		
+	
+	formulaVM3YName  =formulaVM3YNamePattern.format(    dataOKColumn, rowIndex+1, xls.alphabet[firstCalculationColumnIndex + 5] , SAPColumn , GPUColumn , numVmSizes+1 )
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 4, formulaVM3YName,   selecBody)		
+
+	formulaVMYearPAYG=formulaVMYearPAYGPattern.format(dataOKColumn, rowIndex+1, hoursMonthColumn, xls.getVMCalculationColumn('PRICE(H) PAYG'))
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 6, formulaVMYearPAYG, selecBody)
+	
+	formulaVMYear1YRI=formulaVMYear1YRIPattern.format(dataOKColumn, rowIndex+1, xls.getVMCalculationColumn('PRICE(H) 1Y'))
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 7, formulaVMYear1YRI, selecBody)
+
+	formulaVMYear3YRI=formulaVMYear3YRIPattern.format(dataOKColumn, rowIndex+1, xls.getVMCalculationColumn('PRICE(H) 3Y'))
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 8, formulaVMYear3YRI, selecBody)
+	
+	formulaBestPrice=formulaBestPricePattern.format(dataOKColumn, rowIndex+1, resInstValueCell, xls.getVMCalculationColumn('PAYG'), xls.getVMCalculationColumn('3Y RI'))
+	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 9, formulaBestPrice, selecBody)	
 	
 #7 - BLOCK 4 - CREATE DATA DISK CALCULATION COLUMNS
 	#GET  DATA
@@ -308,57 +354,9 @@ customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costS
 customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['ASR']['order']    , xls.costSummary['firstCellColumn'] + 1, formulaTotalASRCost, selecBody)
 customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['TOTAL']['order']  , xls.costSummary['firstCellColumn'] + 1, formulaTotalCost, selectHeaderStyle)
 
-#######################################################################
-#######################################################################
-#######################################################################
-#######################################################################
-#######################################################################
-
-#VIRTUAL MACHINE FORMULAS
-formulaVMBaseNamePattern    ="=IF(O{1}=\"YES\",VLOOKUP("+xls.alphabet[firstColumnCalculations + 1]+"{1} & J{1} & K{1},'azure-vm-prices-base'!G$2:H${0}, 2, 0),\"\")"
-formulaVMBaseMinPricePattern="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${0},  'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1}), _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${0}, 'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1})),\"\")"
-formulaVM1YNamePattern      ="=IF(O{1}=\"YES\",VLOOKUP("+xls.alphabet[firstColumnCalculations + 3]+"{1} & J{1} & K{1},'azure-vm-prices-1Y'!G$2:H${0}, 2, 0),\"\")"
-formulaVM1YMinPricePattern  ="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${0},  'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,     'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1}),   _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${0},   'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,   'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1})),\"\")"
-formulaVM3YNamePattern      ="=IF(O{1}=\"YES\",VLOOKUP("+xls.alphabet[firstColumnCalculations + 5]+"{1} & J{1} & K{1},'azure-vm-prices-3Y'!G$2:H${0}, 2, 0),\"\")"
-formulaVM3YMinPricePattern  ="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-3Y'!C$2:C${0},  'azure-vm-prices-3Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,     'azure-vm-prices-3Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-3Y'!D$2:D${0},J{1},   'azure-vm-prices-3Y'!E$2:E${0},K{1}),   _xlfn.MINIFS('azure-vm-prices-3Y'!I$2:I${0},   'azure-vm-prices-3Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,   'azure-vm-prices-3Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-3Y'!D$2:D${0},J{1},   'azure-vm-prices-3Y'!E$2:E${0},K{1})),\"\")"
-formulaVMYearPAYGPattern="=IF(O{0}=\"YES\",M{0}*Q{0}*12,\"\")"
-formulaVMYear1YRIPattern="=IF(O{0}=\"YES\",S{0}*8760,\"\")"
-formulaVMYear3YRIPattern="=IF(O{0}=\"YES\",U{0}*8760,\"\")"
-formulaBestPricePattern ="=IF(O{0}=\"YES\",IF({1}=\"YES\", MIN(V{0}:X{0}), V{0}),\"\")"
-	
-#FORMULAS AND STYLE FOR CALCULATIONS
-for rowIndex in range(1,xls.rowsForVMInput):		
-	formulaVMBaseName  =formulaVMBaseNamePattern.format(  numVmSizes+1, rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 0, formulaVMBaseName,   selecBody)		
-	
-	formulaVMBaseMinPrice=formulaVMBaseMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 1, formulaVMBaseMinPrice, selecBody)
-	
-	formulaVM1YName  =formulaVM1YNamePattern.format(  numVmSizes+1, rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 2, formulaVM1YName,   selecBody)		
-	
-	formulaVM1YMinPrice=formulaVM1YMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 3, formulaVM1YMinPrice, selecBody)
-
-	formulaVM3YName  =formulaVM3YNamePattern.format(  numVmSizes+1, rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 4, formulaVM3YName,   selecBody)		
-	
-	formulaVM3YMinPrice=formulaVM3YMinPricePattern.format(numVmSizes, rowIndex+1, perfGainValueCell)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 5, formulaVM3YMinPrice, selecBody)
-
-	formulaVMYearPAYG=formulaVMYearPAYGPattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 6, formulaVMYearPAYG, selecBody)
-
-	formulaVMYear1YRI=formulaVMYear1YRIPattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 7, formulaVMYear1YRI, selecBody)
-
-	formulaVMYear3YRI=formulaVMYear3YRIPattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 8, formulaVMYear3YRI, selecBody)
-	
-	formulaBestPrice=formulaBestPricePattern.format(rowIndex+1, resInstValueCell)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 9, formulaBestPrice, selecBody)	
-	
-############ OTHER TABS	
+####################################################################
+############################ OTHER TABS	############################
+####################################################################
 #PUT DATA FROM APIs
 	#VM PAYG
 azureVMDataBaseExcelTab.write(0, 0, 'CPUs', inputHeaderStyle)
