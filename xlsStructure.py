@@ -12,22 +12,21 @@ class xlsStructure:
 	#BLOCK 1
 	assumptions = {
 		'firstCellColumn':0,
-		'firstCellRow':1,		
+		'firstCellRow':0,		
 		'header': {
 			'width': 2,
 			'title': 'ASSUMPTIONS'
 		},
 		'rows': {
 			'PERF':    {'name': 'PERF GAIN', 'order':1, 'default':0},
-			'RESINST': {'name': 'RESE INST', 'order':2, 'default':'YES'},
-			'USD2EURO':{'name': '$ to €',    'order':3, 'default':0.82}
+			'USD2EURO':{'name': '$ to €',    'order':2, 'default':0.82}
 		}
 	}
 	
 	#BLOCK 2
 	customerInputColumns = {
 		'firstCellRow':0,
-		'firstColumnIndex' : 3,	
+		'firstColumnIndex' : 4,	
 		'columns': {
 			'VM NAME' : {
 				'alias' : 'VM NAME',
@@ -101,10 +100,17 @@ class xlsStructure:
 				'default' : 'NO',
 				'validationList' : ['YES', 'NO']
 			},
+			'RESERVED INST' : {
+				'alias' : 'RESERVED INST.',
+				'width' : 15,
+				'index' : 11,
+				'default' : 'YES',
+				'validationList' : ['YES', 'NO']
+			},
 			'ALL DATA OK' : {
 				'alias' : 'DATA OK',
 				'width' : 8,
-				'index' : 11,
+				'index' : 12,
 				'default' : ''
 			}
 		}	
@@ -173,7 +179,7 @@ class xlsStructure:
 		'firstCellRow': 0,	
 		'prefix' : 'DATA - ',
 		'width' : 10,
-		'firstColumnIndex' : customerInputColumns['firstColumnIndex'] + len(customerInputColumns['columns']) + len(VMCalculationColumns['columns'])
+		'firstColumnIndex' : VMCalculationColumns['firstColumnIndex'] + len(VMCalculationColumns['columns'])
 	}	
 	
 	#BLOCK 5
@@ -201,7 +207,7 @@ class xlsStructure:
 	#BLOCK 7
 	dataDiskSummary = {
 		'firstCellColumn':0,
-		'firstCellRow': 15,
+		'firstCellRow': 12,
 		'header': {
 			'width': 3,
 			'title': 'DATA DISK SUMMARY'
@@ -209,14 +215,14 @@ class xlsStructure:
 		'columns': {
 			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
 			'COUNT':     {'name': 'COUNT'    , 'order':2},
-			'PRICE':     {'name': 'PRICE'    , 'order':3}
+			'PRICE':     {'name': 'PRICE($)' , 'order':3}
 		}
 	}
 
 	#BLOCK 8
 	OSDiskSummary = {
 		'firstCellColumn':0,
-		'firstCellRow': 34,
+		'firstCellRow': 31,
 		'header': {
 			'width': 3,
 			'title': 'OS DISK SUMMARY'
@@ -224,14 +230,18 @@ class xlsStructure:
 		'columns': {
 			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
 			'COUNT':     {'name': 'COUNT'    , 'order':2},
-			'PRICE':     {'name': 'PRICE'    , 'order':3}
+			'PRICE':     {'name': 'PRICE($)'    , 'order':3}
+		},
+		'rows': {
+			'standard': {'name': 'S4', 'order':1},
+			'premium': {'name': 'P4', 'order':2}
 		}
 	}
 	
 	#BLOCK 9	
 	costSummary = {
 		'firstCellColumn':0,
-		'firstCellRow':7,		
+		'firstCellRow':4,		
 		'header': {
 			'width': 2,
 			'title': 'YEAR TOTALS - €'
@@ -244,7 +254,6 @@ class xlsStructure:
 		}
 	}
 		
-	
 	#GIVEN A CUSTOMER DATA COLUMN RELATIVE INDEX, GET ABSOLUTE SPREADSHEET POSITION
 	def getCustomerDataColumnPositionInExcel(columnIndex):
 		return columnIndex + xlsStructure.customerInputColumns['firstColumnIndex']
