@@ -183,11 +183,49 @@ class xlsStructure:
 		'firstColumnIndex' : managedDataDiskColumns['firstColumnIndex'] + len(priceReaderManagedDisk.standardDiskSizes )  + len(priceReaderManagedDisk.premiumDiskSizes )
 	}	
 	
-	#BLOCK 7
-	dataDiskSummary = {
-		'firstCellRow': 15
+	#BLOCK 6
+	managedStandardOSDiskColumn = {
+		'firstCellRow': 0,	
+		'name' : 'OS DISK STANDARD',
+		'width' : 18,
+		'firstColumnIndex' : ASRColumns['firstColumnIndex'] + 1
+	}
+	managedPremiumOSDiskColumn = {
+		'firstCellRow': 0,	
+		'name' : 'OS DISK PREMIUM',
+		'width' : 18,
+		'firstColumnIndex' : managedStandardOSDiskColumn['firstColumnIndex'] + 1
 	}
 	
+	#BLOCK 7
+	dataDiskSummary = {
+		'firstCellColumn':0,
+		'firstCellRow': 15,
+		'header': {
+			'width': 3,
+			'title': 'DATA DISK SUMMARY'
+		},
+		'columns': {
+			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
+			'COUNT':     {'name': 'COUNT'    , 'order':2},
+			'PRICE':     {'name': 'PRICE'    , 'order':3}
+		}
+	}
+
+	#BLOCK 8
+	OSDiskSummary = {
+		'firstCellColumn':0,
+		'firstCellRow': 34,
+		'header': {
+			'width': 3,
+			'title': 'OS DISK SUMMARY'
+		},
+		'columns': {
+			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
+			'COUNT':     {'name': 'COUNT'    , 'order':2},
+			'PRICE':     {'name': 'PRICE'    , 'order':3}
+		}
+	}
 	
 	#BLOCK 9	
 	costSummary = {
@@ -195,7 +233,7 @@ class xlsStructure:
 		'firstCellRow':7,		
 		'header': {
 			'width': 2,
-			'title': 'YEAR TOTALS (€)'
+			'title': 'YEAR TOTALS - €'
 		},
 		'rows': {
 			'COMPUTE': {'name': 'COMPUTE', 'order':1},

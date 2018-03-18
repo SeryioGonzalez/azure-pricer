@@ -15,10 +15,26 @@ region = 'europe-west'
 numOfCustomerInputParams=12
 firstColumnCalculations=xls.firstColumnCustomerInput + numOfCustomerInputParams
 
+#KEY CELLS
+perfGainValueCell=xls.getAssumptionValueCell('PERF')
+resInstValueCell=xls.getAssumptionValueCell('RESINST')
+currencyRateCell=xls.getAssumptionValueCell('USD2EURO')
 #KEY COLUMN INDEX
-dataOKColumnLetter=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ALL DATA OK']['index']))
-ASRColumnsLetter=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ASR']['index']))
+VMNameColumn= xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['VM NAME']['index']))
+CPUColumn=    xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['CPUs']['index']))
+memColumn=    xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['Mem(GB)']['index']))
+dataDiskSizeColumn=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['DATA STORAGE']['index']))
+dataDiskTypeColumn=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['DATA STORAGE TYPE']['index']))
+osDiskTypeColumn=  xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['OS STORAGE TYPE']['index']))
+SAPColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['SAP']['index']))
+GPUColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['GPU']['index']))
+ASRColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ASR']['index']))
+hoursMonthColumn  =xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['HOURS/MONTH']['index']))
+bSeriesColumn     =xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['USE B SERIES']['index']))
 
+dataOKColumn=xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ALL DATA OK']['index']))
+columnBestVMPrice = xls.getVMCalculationColumn('BEST PRICE')
+#KEY DATA
 totalNumDisks = len(priceReaderManagedDisk.standardDiskSizes) + len(priceReaderManagedDisk.premiumDiskSizes)
 
 #1 - GET RESOURCE PRICES
@@ -73,11 +89,6 @@ selecBody.set_bg_color('#d8e4bc')
 customerVMDataExcelTab.set_column(0, 0, xls.firstColumnWidth) 	
 
 #5 - BLOCK 1 - CREATE ASSUMPTIONS
-	#GET ASSUMPTION VALUE CELLS
-perfGainValueCell=xls.getAssumptionValueCell('PERF')
-resInstValueCell=xls.getAssumptionValueCell('RESINST')
-currencyRateCell=xls.getAssumptionValueCell('USD2EURO')
-
 	#CALCULATE AND PUT HEADER
 firstColumnLetter=xls.getColumnLetterFromIndex(xls.assumptions['firstCellColumn'])
 firstRowLetter=xls.assumptions['firstCellRow'] + 1
@@ -136,9 +147,18 @@ for column in xls.customerInputColumns['columns']:
 		customerVMDataExcelTab.data_validation(xls.customerInputColumns['firstCellRow'] + 1, columnPositon, xls.rowsForVMInput, columnPositon, {'validate': 'list','source': columnValidationList})
 	except:
 		pass
-		
+	
+	#CHECK ALL INPUT
+formulaCheckAllInputsPattern="=IF(AND({1}{0}<>\"\", {2}{0}<>\"\", {3}{0}<>\"\", {4}{0}<>\"\", {5}{0}<>\"\", {6}{0}<>\"\", {7}{0}<>\"\", {8}{0}<>\"\", {9}{0}<>\"\", {10}{0}<>\"\", {11}{0}<>\"\"),\"YES\",\"NO\")"
+for rowIndex in range(1,xls.rowsForVMInput):		
+	formulaCheckAllInputs =formulaCheckAllInputsPattern.format( rowIndex+1, VMNameColumn, CPUColumn, memColumn, dataDiskSizeColumn, dataDiskTypeColumn, osDiskTypeColumn, SAPColumn, GPUColumn, ASRColumn, hoursMonthColumn, bSeriesColumn )
+	customerVMDataExcelTab.write_formula(rowIndex, xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ALL DATA OK']['index']), formulaCheckAllInputs,   inputBodyStyle)	
+
+	#SET FORMAT FOR ALL DATA OK
+cellRange='{0}{1}:{0}{2}'.format(dataOKColumn , xls.customerInputColumns['firstCellRow'] + 1, str(xls.rowsForVMInput+1))
+customerVMDataExcelTab.conditional_format(cellRange, {'type': 'cell', 'criteria': 'equal to', 'value':    '\"YES\"', 'format':   dataOKFormat})
+
 #6 - BLOCK 3 - CREATE VM CALCULATION COLUMNS
-columnBestVMPrice = xls.getVMCalculationColumn('BEST PRICE')
 for column in xls.VMCalculationColumns['columns']:
 	#GET COLUMN DATA
 	columnWidth = xls.VMCalculationColumns['columns'][column]['width']
@@ -164,7 +184,15 @@ for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceRead
 	customerVMDataExcelTab.set_column(columnIndex, columnIndex, dataDiskColumnWidth) 		
 	#SET HEADER
 	customerVMDataExcelTab.write(xls.managedDataDiskColumns['firstCellRow'], columnIndex, dataDiskPrefix+diskName, selectHeaderStyle)
-	
+	#SET FORMULA
+	diskDataIndexInDiskTab = diskIndex + 2
+	for rowIndex in range(1,xls.rowsForVMInput):
+		if diskIndex == 0:
+			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}<'azure-standard-disk-prices'!B{4}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
+		else:
+			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}>'azure-standard-disk-prices'!B{4},{3}{1}<'azure-standard-disk-prices'!B{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn, diskDataIndexInDiskTab + 1)
+		customerVMDataExcelTab.write_formula(rowIndex, columnIndex, formula, selecBody)	
+		
 	#PREMIUM DISKS
 dataDiskFirstColumn = columnIndex + 1
 for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceReaderManagedDisk.premiumDiskSizes) ):
@@ -174,22 +202,63 @@ for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceRead
 	customerVMDataExcelTab.set_column(columnIndex, columnIndex, dataDiskColumnWidth) 		
 	#SET HEADER
 	customerVMDataExcelTab.write(xls.managedDataDiskColumns['firstCellRow'], columnIndex, dataDiskPrefix+diskName, selectHeaderStyle)
+	#SET FORMULA
+	diskDataIndexInDiskTab = diskIndex + 2
+	for rowIndex in range(1,xls.rowsForVMInput):
+		if diskIndex == 0:
+			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}<'azure-premium-disk-prices'!B{4}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
+		else:
+			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}>'azure-premium-disk-prices'!B{4},{3}{1}<'azure-premium-disk-prices'!B{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn, diskDataIndexInDiskTab + 1)
+		customerVMDataExcelTab.write_formula(rowIndex, columnIndex, formula, selecBody)	
 
 #7 - BLOCK 5 - ASR CALCULATION COLUMNS
-#SET WIDTH
+	#SET WIDTH
 customerVMDataExcelTab.set_column(xls.ASRColumns['firstColumnIndex'], xls.ASRColumns['firstColumnIndex'], xls.ASRColumns['width'])
-#SET HEADER
+	#SET HEADER
 customerVMDataExcelTab.write(xls.ASRColumns['firstCellRow'], xls.ASRColumns['firstColumnIndex'], xls.ASRColumns['name'] , selectHeaderStyle)
-#ROWS
+	#ROWS
 formulaCheckASRPattern="=IF(AND({0}{1}=\"YES\", {2}{1}=\"YES\"),1,\"\")"	
 for rowIndex in range(1,xls.rowsForVMInput):		
-	formulaCheckASR=formulaCheckASRPattern.format(ASRColumnsLetter,rowIndex+1,dataOKColumnLetter)
+	formulaCheckASR=formulaCheckASRPattern.format(ASRColumn, rowIndex+1, dataOKColumn)
 	customerVMDataExcelTab.write_formula(rowIndex, xls.ASRColumns['firstColumnIndex'], formulaCheckASR, selecBody)
-	
-#FORMULAS
 
-#BLOCK 7
-for columnIndex in range(xls.managedDataDiskColumns['firstColumnIndex'], xls.managedDataDiskColumns['firstColumnIndex'] + totalNumDisks):
+#8 - BLOCK 6 - CREATE OS DISK CALCULATION COLUMNS
+	#SET WIDTH
+customerVMDataExcelTab.set_column(xls.managedStandardOSDiskColumn['firstColumnIndex'], xls.managedStandardOSDiskColumn['firstColumnIndex'], xls.managedStandardOSDiskColumn['width']) 
+customerVMDataExcelTab.set_column(xls.managedPremiumOSDiskColumn['firstColumnIndex'],  xls.managedPremiumOSDiskColumn['firstColumnIndex'],  xls.managedPremiumOSDiskColumn['width']) 
+	#SET HEADER
+customerVMDataExcelTab.write(xls.managedStandardOSDiskColumn['firstCellRow'], xls.managedStandardOSDiskColumn['firstColumnIndex'], xls.managedStandardOSDiskColumn['name'] , selectHeaderStyle)
+customerVMDataExcelTab.write(xls.managedPremiumOSDiskColumn['firstCellRow'],  xls.managedPremiumOSDiskColumn['firstColumnIndex'] , xls.managedPremiumOSDiskColumn['name']  , selectHeaderStyle)
+	#ROWS
+formulaDiskOSStandardPattern="=IF(AND({0}{1}=\"STANDARD\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
+formulaDiskOSPremiumPattern="=IF( AND({0}{1}=\"PREMIUM\",  {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
+
+for rowIndex in range(1,xls.rowsForVMInput):	
+	#COUNT OS STANDARD
+	formulaDiskOSStandard=formulaDiskOSStandardPattern.format(osDiskTypeColumn , rowIndex+1, dataOKColumn, ASRColumn)
+	customerVMDataExcelTab.write_formula(rowIndex, xls.managedStandardOSDiskColumn['firstColumnIndex'], formulaDiskOSStandard, selecBody)
+	#COUNT OS PREMIUM
+	formulaDiskOSPremium =formulaDiskOSPremiumPattern.format(osDiskTypeColumn  , rowIndex+1, dataOKColumn, ASRColumn)
+	customerVMDataExcelTab.write_formula(rowIndex, xls.managedPremiumOSDiskColumn['firstColumnIndex'] , formulaDiskOSPremium, selecBody)
+	
+#9 - BLOCK 7 - DATA DISK SUMMARY
+	#CALCULATE AND PUT HEADER
+firstColumnLetter=xls.getColumnLetterFromIndex(xls.dataDiskSummary['firstCellColumn'])
+firstRowLetter=xls.dataDiskSummary['firstCellRow'] - 1
+lastColumnLetter=xls.getColumnLetterFromIndex(xls.dataDiskSummary['firstCellColumn'] + xls.dataDiskSummary['header']['width'] - 1)
+headerRange='{0}{1}:{2}{1}'.format(firstColumnLetter, firstRowLetter, lastColumnLetter)
+customerVMDataExcelTab.merge_range(headerRange, xls.dataDiskSummary['header']['title'], selectHeaderStyle)
+	#PUT COLUMN HEADERS
+for column in xls.dataDiskSummary['columns']:
+	customerVMDataExcelTab.write(xls.dataDiskSummary['firstCellRow'] - 1, xls.dataDiskSummary['columns'][column]['order'] - 1, xls.dataDiskSummary['columns'][column]['name'], selectHeaderStyle)
+	#STANDARD DATA DISKS 
+for index in range(0, len(priceReaderManagedDisk.standardDiskSizes)):
+	customerVMDataExcelTab.write(xls.dataDiskSummary['firstCellRow'] + index, 0 , priceReaderManagedDisk.standardDiskSizes[index], selectHeaderStyle)
+	#PREMIUM DATA DISKS 
+for index in range(0, len(priceReaderManagedDisk.premiumDiskSizes)):
+	customerVMDataExcelTab.write(xls.dataDiskSummary['firstCellRow'] + len(priceReaderManagedDisk.standardDiskSizes) + index, 0 , priceReaderManagedDisk.premiumDiskSizes[index], selectHeaderStyle)
+	#STANDARD DATA DISKS SUMMARY CALCULATIONS
+for columnIndex in range(xls.managedDataDiskColumns['firstColumnIndex'], xls.managedDataDiskColumns['firstColumnIndex'] + len(priceReaderManagedDisk.standardDiskSizes)):
 	formulaCountDisk="=SUM({0}{1}:{0}{2})".format( xls.alphabet[columnIndex], xls.managedDataDiskColumns['firstCellRow'] + 1, xls.rowsForVMInput + 1)
 	currentCountRow=columnIndex - xls.managedDataDiskColumns['firstColumnIndex'] + xls.dataDiskSummary['firstCellRow'] + 1
 	currentDiskPriceRow= currentCountRow - 14
@@ -197,33 +266,57 @@ for columnIndex in range(xls.managedDataDiskColumns['firstColumnIndex'], xls.man
 	
 	customerVMDataExcelTab.write_formula(currentCountRow - 1, 1, formulaCountDisk, selecBody)
 	customerVMDataExcelTab.write_formula(currentCountRow - 1, 2, formulaPriceDisk, selecBody)
+	#PREMIUM DATA DISKS SUMMARY CALCULATIONS
+for columnIndex in range(xls.managedDataDiskColumns['firstColumnIndex']  + len(priceReaderManagedDisk.standardDiskSizes), xls.managedDataDiskColumns['firstColumnIndex'] + len(priceReaderManagedDisk.standardDiskSizes) + len(priceReaderManagedDisk.premiumDiskSizes)):
+	formulaCountDisk="=SUM({0}{1}:{0}{2})".format( xls.alphabet[columnIndex], xls.managedDataDiskColumns['firstCellRow'] + 1, xls.rowsForVMInput + 1)
+	currentCountRow=columnIndex - xls.managedDataDiskColumns['firstColumnIndex'] + xls.dataDiskSummary['firstCellRow'] + 1
+	currentDiskPriceRow= currentCountRow - 22
+	formulaPriceDisk="=B{0}*'azure-premium-disk-prices'!C{1}".format(currentCountRow, currentDiskPriceRow)
+	
+	customerVMDataExcelTab.write_formula(currentCountRow - 1, 1, formulaCountDisk, selecBody)
+	customerVMDataExcelTab.write_formula(currentCountRow - 1, 2, formulaPriceDisk, selecBody)
 
-#BLOCK 9
+#10 - BLOCK 8 - OS DISK SUMMARY
+	#CALCULATE AND PUT HEADER
+firstColumnLetter=xls.getColumnLetterFromIndex(xls.OSDiskSummary['firstCellColumn'])
+firstRowLetter=xls.OSDiskSummary['firstCellRow'] - 1
+lastColumnLetter=xls.getColumnLetterFromIndex(xls.OSDiskSummary['firstCellColumn'] + xls.OSDiskSummary['header']['width'] - 1)
+headerRange='{0}{1}:{2}{1}'.format(firstColumnLetter, firstRowLetter, lastColumnLetter)
+customerVMDataExcelTab.merge_range(headerRange, xls.OSDiskSummary['header']['title'], selectHeaderStyle)
+	#PUT COLUMN HEADERS
+for column in xls.OSDiskSummary['columns']:
+	customerVMDataExcelTab.write(xls.OSDiskSummary['firstCellRow'] - 1, xls.OSDiskSummary['columns'][column]['order'] - 1, xls.OSDiskSummary['columns'][column]['name'], selectHeaderStyle)
+	
+#11 - BLOCK 9 - COST SUMMARY
 formulaTotalComputeCost="={0}*SUM({1}1:{1}{2})".format(currencyRateCell, columnBestVMPrice, xls.rowsForVMInput + 1)
+formulaTotalDiskCost="={0}*12*( SUM(C{1}:C{2}) + SUM(AQ{3}:AQ{4})*'azure-standard-disk-prices'!C2 + SUM(AR{3}:AR{4})*'azure-premium-disk-prices'!C2)".format(currencyRateCell, xls.dataDiskSummary['firstCellRow'] + 1 , xls.dataDiskSummary['firstCellRow'] + 1 +  totalNumDisks - 1, xls.managedDataDiskColumns['firstCellRow'] + 1 , xls.rowsForVMInput + 1)
 formulaTotalASRCost ="={0}*12*SUM({1}{2}:{1}{3})*'azure-asr-prices'!A2".format(currencyRateCell, xls.getColumnLetterFromIndex(xls.ASRColumns['firstColumnIndex']), xls.ASRColumns['firstCellRow'] + 1, xls.rowsForVMInput + 1)
+formulaTotalCost="=SUM(B{0}:B{1})".format(xls.costSummary['firstCellRow'] + 2, xls.costSummary['firstCellRow'] + 2 + len(xls.costSummary['rows']) - 2)
+	#CALCULATE AND PUT HEADER
+firstColumnLetter=xls.getColumnLetterFromIndex(xls.costSummary['firstCellColumn'])
+firstRowLetter=xls.costSummary['firstCellRow'] + 1
+lastColumnLetter=xls.getColumnLetterFromIndex(xls.costSummary['firstCellColumn'] + xls.costSummary['header']['width'] - 1)
+headerRange='{0}{1}:{2}{1}'.format(firstColumnLetter, firstRowLetter, lastColumnLetter)
+customerVMDataExcelTab.merge_range(headerRange, xls.costSummary['header']['title'], selectHeaderStyle)
+	#CREATE COST TOTALS
+customerVMDataExcelTab.write(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['COMPUTE']['order'], xls.costSummary['firstCellColumn'], xls.costSummary['rows']['COMPUTE']['name'], selectHeaderStyle)
+customerVMDataExcelTab.write(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['STORAGE']['order'], xls.costSummary['firstCellColumn'], xls.costSummary['rows']['STORAGE']['name'], selectHeaderStyle)
+customerVMDataExcelTab.write(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['ASR']['order']    , xls.costSummary['firstCellColumn'], xls.costSummary['rows']['ASR']['name']    , selectHeaderStyle)
+customerVMDataExcelTab.write(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['TOTAL']['order']  , xls.costSummary['firstCellColumn'], xls.costSummary['rows']['TOTAL']['name'],   selectHeaderStyle)
+customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['COMPUTE']['order'], xls.costSummary['firstCellColumn'] + 1, formulaTotalComputeCost, selecBody)		  
+customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['STORAGE']['order'], xls.costSummary['firstCellColumn'] + 1, formulaTotalDiskCost, selecBody)
+customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['ASR']['order']    , xls.costSummary['firstCellColumn'] + 1, formulaTotalASRCost, selecBody)
+customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['TOTAL']['order']  , xls.costSummary['firstCellColumn'] + 1, formulaTotalCost, selectHeaderStyle)
 
 #######################################################################
 #######################################################################
 #######################################################################
 #######################################################################
 #######################################################################
-
-formulaTotalDiskCost="={0}*12*( SUM(C16:C31) + SUM(AQ1:AQ{1})*'azure-standard-disk-prices'!C2 + SUM(AR1:AR{1})*'azure-premium-disk-prices'!C2)".format(currencyRateCell, xls.rowsForVMInput + 1)
-formulaTotalCost="=SUM(B9:B11)"
-
-#CHECKING STANDARD OS DISK
-formulaDiskOSStandardPattern="=IF(AND(I{0}=\"STANDARD\", O{0}=\"YES\"), IF(L{0}=\"YES\",2,1) ,\"\")"
-
-#CHECKING PREMIUM OS DISK
-formulaDiskOSPremiumPattern="=IF( AND(I{0}=\"PREMIUM\",  O{0}=\"YES\"), IF(L{0}=\"YES\",2,1) ,\"\")"
-
-#CHECK ALL INPUT
-formulaCheckAllInputsPattern="=IF(AND(D{0}<>\"\", E{0}<>\"\", F{0}<>\"\", G{0}<>\"\", H{0}<>\"\", I{0}<>\"\", J{0}<>\"\", K{0}<>\"\", L{0}<>\"\", M{0}<>\"\", N{0}<>\"\"),\"YES\",\"NO\")"
 
 #VIRTUAL MACHINE FORMULAS
 formulaVMBaseNamePattern    ="=IF(O{1}=\"YES\",VLOOKUP("+xls.alphabet[firstColumnCalculations + 1]+"{1} & J{1} & K{1},'azure-vm-prices-base'!G$2:H${0}, 2, 0),\"\")"
 formulaVMBaseMinPricePattern="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${0},  'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1}), _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${0}, 'azure-vm-prices-base'!A$2:A${0},\">=\"&E{1}*(100-{2})/100, 'azure-vm-prices-base'!B$2:B${0},\">=\"&F{1}*(100-{2})/100, 'azure-vm-prices-base'!D$2:D${0},J{1}, 'azure-vm-prices-base'!E$2:E${0},K{1})),\"\")"
-
 formulaVM1YNamePattern      ="=IF(O{1}=\"YES\",VLOOKUP("+xls.alphabet[firstColumnCalculations + 3]+"{1} & J{1} & K{1},'azure-vm-prices-1Y'!G$2:H${0}, 2, 0),\"\")"
 formulaVM1YMinPricePattern  ="=IF(O{1}=\"YES\", IF(N{1}=\"YES\" ,   _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${0},  'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,     'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1}),   _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${0},   'azure-vm-prices-1Y'!A$2:A${0},\">=\"&E{1}*(100-{2})/100,   'azure-vm-prices-1Y'!B$2:B${0},\">=\"&F{1}*(100-{2})/100,   'azure-vm-prices-1Y'!D$2:D${0},J{1},   'azure-vm-prices-1Y'!E$2:E${0},K{1})),\"\")"
 formulaVM3YNamePattern      ="=IF(O{1}=\"YES\",VLOOKUP("+xls.alphabet[firstColumnCalculations + 5]+"{1} & J{1} & K{1},'azure-vm-prices-3Y'!G$2:H${0}, 2, 0),\"\")"
@@ -232,72 +325,9 @@ formulaVMYearPAYGPattern="=IF(O{0}=\"YES\",M{0}*Q{0}*12,\"\")"
 formulaVMYear1YRIPattern="=IF(O{0}=\"YES\",S{0}*8760,\"\")"
 formulaVMYear3YRIPattern="=IF(O{0}=\"YES\",U{0}*8760,\"\")"
 formulaBestPricePattern ="=IF(O{0}=\"YES\",IF({1}=\"YES\", MIN(V{0}:X{0}), V{0}),\"\")"
-
-#STANDARD DISK FORMULAS
-formulaDiskS4Pattern ="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}<'azure-standard-disk-prices'!B2),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskS6Pattern ="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}>'azure-standard-disk-prices'!B2,G{0}<'azure-standard-disk-prices'!B3),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskS10Pattern="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}>'azure-standard-disk-prices'!B3,G{0}<'azure-standard-disk-prices'!B4),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskS15Pattern="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}>'azure-standard-disk-prices'!B4,G{0}<'azure-standard-disk-prices'!B5),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskS20Pattern="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}>'azure-standard-disk-prices'!B5,G{0}<'azure-standard-disk-prices'!B6),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskS30Pattern="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}>'azure-standard-disk-prices'!B6,G{0}<'azure-standard-disk-prices'!B7),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskS40Pattern="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}>'azure-standard-disk-prices'!B7,G{0}<'azure-standard-disk-prices'!B8),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskS50Pattern="=IF(AND(H{0}=\"STANDARD\",O{0}=\"YES\",G{0}>'azure-standard-disk-prices'!B8,G{0}<'azure-standard-disk-prices'!B9),1+IF(L{0}=\"YES\",1),\"\")"
-#PREMIUM DISK FORMULAS
-formulaDiskP4Pattern ="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}<'azure-premium-disk-prices'!B2),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskP6Pattern ="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}>'azure-premium-disk-prices'!B2,G{0}<'azure-premium-disk-prices'!B3),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskP10Pattern="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}>'azure-premium-disk-prices'!B3,G{0}<'azure-premium-disk-prices'!B4),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskP15Pattern="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}>'azure-premium-disk-prices'!B4,G{0}<'azure-premium-disk-prices'!B5),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskP20Pattern="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}>'azure-premium-disk-prices'!B5,G{0}<'azure-premium-disk-prices'!B6),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskP30Pattern="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}>'azure-premium-disk-prices'!B6,G{0}<'azure-premium-disk-prices'!B7),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskP40Pattern="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}>'azure-premium-disk-prices'!B7,G{0}<'azure-premium-disk-prices'!B8),1+IF(L{0}=\"YES\",1),\"\")"
-formulaDiskP50Pattern="=IF(AND(H{0}=\"PREMIUM\",O{0}=\"YES\",G{0}>'azure-premium-disk-prices'!B8,G{0}<'azure-premium-disk-prices'!B9),1+IF(L{0}=\"YES\",1),\"\")"
 	
-#SET FORMAT FOR ALL DATA OK
-customerVMDataExcelTab.conditional_format('O1:O'+str(xls.rowsForVMInput+1), {'type':     'cell',
-                                    'criteria': 'equal to',
-                                    'value':    '\"YES\"',
-                                    'format':   dataOKFormat})
-
-#CREATE COST TOTALS
-customerVMDataExcelTab.merge_range('A8:B8', 'YEAR TOTALS (EUROS)', selectHeaderStyle)
-customerVMDataExcelTab.write(8, 0, 'COMPUTE', selectHeaderStyle)
-customerVMDataExcelTab.write(9, 0, 'STORAGE', selectHeaderStyle)
-customerVMDataExcelTab.write(10,0, 'ASR',     selectHeaderStyle)
-customerVMDataExcelTab.write(11, 0,'TOTAL',   selectHeaderStyle)
-customerVMDataExcelTab.write_formula(8, 1, formulaTotalComputeCost, selecBody)		  
-customerVMDataExcelTab.write_formula(9, 1, formulaTotalDiskCost, selecBody)
-customerVMDataExcelTab.write_formula(10, 1, formulaTotalASRCost, selecBody)
-customerVMDataExcelTab.write_formula(11, 1, formulaTotalCost, selectHeaderStyle)	
-
-#CREATE DATA DISK TOTALS
-customerVMDataExcelTab.merge_range('A14:C14', 'DATA DISK SUMMARY', selectHeaderStyle)
-customerVMDataExcelTab.write(14, 0, 'DISK SIZE', selectHeaderStyle)
-customerVMDataExcelTab.write(14, 1, 'COUNT', selectHeaderStyle)
-customerVMDataExcelTab.write(14, 2, 'PRICE', selectHeaderStyle)
-firstDiskTotalRow = 15
-for index in range(0, len(priceReaderManagedDisk.standardDiskSizes)):
-	customerVMDataExcelTab.write(firstDiskTotalRow + index, 0 , priceReaderManagedDisk.standardDiskSizes[index], selectHeaderStyle)
-
-for index in range(0, len(priceReaderManagedDisk.premiumDiskSizes)):
-	customerVMDataExcelTab.write(firstDiskTotalRow + len(priceReaderManagedDisk.standardDiskSizes) + index, 0 , priceReaderManagedDisk.premiumDiskSizes[index], selectHeaderStyle)
-
-
-#CREATE OS DISK TOTALS
-customerVMDataExcelTab.merge_range('A33:C33', 'DATA DISK SUMMARY', selectHeaderStyle)
-customerVMDataExcelTab.write(14, 0, 'DISK SIZE', selectHeaderStyle)
-customerVMDataExcelTab.write(14, 1, 'COUNT', selectHeaderStyle)
-customerVMDataExcelTab.write(14, 2, 'PRICE', selectHeaderStyle)
-
-#COLUMNS FOR REMAINING ITEMS
-
-customerVMDataExcelTab.write(0, firstColumnCalculations + 27, 'OS DISK STANDARD' , selectHeaderStyle)
-customerVMDataExcelTab.write(0, firstColumnCalculations + 28, 'OS DISK PREMIUM'  , selectHeaderStyle)
-
 #FORMULAS AND STYLE FOR CALCULATIONS
 for rowIndex in range(1,xls.rowsForVMInput):		
-	formulaCheckAllInputs =formulaCheckAllInputsPattern.format( rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations - 1, formulaCheckAllInputs,   inputBodyStyle)	
-
 	formulaVMBaseName  =formulaVMBaseNamePattern.format(  numVmSizes+1, rowIndex+1)
 	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 0, formulaVMBaseName,   selecBody)		
 	
@@ -327,63 +357,6 @@ for rowIndex in range(1,xls.rowsForVMInput):
 	
 	formulaBestPrice=formulaBestPricePattern.format(rowIndex+1, resInstValueCell)
 	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 9, formulaBestPrice, selecBody)	
-#STANDARD DISKS	
-	formulaDiskS4=formulaDiskS4Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 10, formulaDiskS4, selecBody)	
-
-	formulaDiskS6=formulaDiskS6Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 11, formulaDiskS6, selecBody)		
-	
-	formulaDiskS10=formulaDiskS10Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 12, formulaDiskS10, selecBody)			
-	
-	formulaDiskS15=formulaDiskS15Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 13, formulaDiskS15, selecBody)		
-	
-	formulaDiskS20=formulaDiskS20Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 14, formulaDiskS20, selecBody)		
-	
-	formulaDiskS30=formulaDiskS30Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 15, formulaDiskS30, selecBody)		
-	
-	formulaDiskS40=formulaDiskS40Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 16, formulaDiskS40, selecBody)		
-	
-	formulaDiskS50=formulaDiskS50Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 17, formulaDiskS50, selecBody)
-#MANAGED DISKS	
-	formulaDiskP4=formulaDiskP4Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 18, formulaDiskP4, selecBody)	
-
-	formulaDiskP6=formulaDiskP6Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 19, formulaDiskP6, selecBody)		
-	
-	formulaDiskP10=formulaDiskP10Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 20, formulaDiskP10, selecBody)			
-	
-	formulaDiskP15=formulaDiskP15Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 21, formulaDiskP15, selecBody)		
-	
-	formulaDiskP20=formulaDiskP20Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 22, formulaDiskP20, selecBody)		
-	
-	formulaDiskP30=formulaDiskP30Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 23, formulaDiskP30, selecBody)		
-	
-	formulaDiskP40=formulaDiskP40Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 24, formulaDiskP40, selecBody)		
-	
-	formulaDiskP50=formulaDiskP50Pattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 25, formulaDiskP50, selecBody)
-
-#COUNT OS STANDARD
-	customerVMDataExcelTab.set_column(42, 43, 18) 		
-	formulaDiskOSStandard=formulaDiskOSStandardPattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 27, formulaDiskOSStandard, selecBody)
-#COUNT OS PREMIUM
-	formulaDiskOSPremium=formulaDiskOSPremiumPattern.format(rowIndex+1)
-	customerVMDataExcelTab.write_formula(rowIndex, firstColumnCalculations + 28, formulaDiskOSPremium, selecBody)
-
 	
 ############ OTHER TABS	
 #PUT DATA FROM APIs
