@@ -8,7 +8,7 @@ import priceReaderCompute
 import priceReaderManagedDisk
 import priceReaderSiteRecovery
 
-workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quotes-{}.xlsx'
+workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quote-Tool-{}.xlsx'
 today = datetime.date.today().strftime('%d%m%y')
 region = 'europe-west'
 
@@ -31,7 +31,14 @@ reseInsColumn     =xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositio
 dataOKColumn=      xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['ALL DATA OK']['index']))
 
 firstCalculationColumnIndex=xls.VMCalculationColumns['firstColumnIndex']
-columnBestVMPrice = xls.getVMCalculationColumn('BEST PRICE')
+
+columnPAYGVMSize =     xls.getVMCalculationColumn('BEST SIZE PAYG')
+column1YResInsVMSize = xls.getVMCalculationColumn('BEST SIZE 1Y')
+column3YResInsVMSize = xls.getVMCalculationColumn('BEST SIZE 3Y')
+columnYearPAYGVMPrice =     xls.getVMCalculationColumn('PAYG')
+columnYear1YResInsVMPrice = xls.getVMCalculationColumn('1Y RI')
+columnYear3YResInsVMPrice = xls.getVMCalculationColumn('3Y RI')
+columnBestYearVMPrice = xls.getVMCalculationColumn('BEST PRICE')
 #KEY DATA
 totalNumDisks = len(priceReaderManagedDisk.standardDiskSizes) + len(priceReaderManagedDisk.premiumDiskSizes)
 
@@ -61,6 +68,7 @@ inputHeaderStyle.set_bold()
 inputHeaderStyle.set_align('center')
 inputHeaderStyle.set_border(1)
 inputHeaderStyle.set_bg_color('#366092')
+inputHeaderStyle.set_font_color('white')
 inputBodyStyle = workbook.add_format()
 inputBodyStyle.set_align('center')
 inputBodyStyle.set_border(1)
@@ -74,6 +82,8 @@ dataOKFormat =  workbook.add_format()
 dataOKFormat.set_bold()
 dataOKFormat.set_font_color('#76933c')
 dataOKFormat.set_font_size(13)
+dataOKFormat.set_bg_color('#b7dee8')
+
 selectBodyStyle = workbook.add_format()
 selectBodyStyle.set_align('center')
 selectBodyStyle.set_border(1)
@@ -337,10 +347,9 @@ for row in xls.OSDiskSummary['rows']:
 	customerVMDataExcelTab.write(currentRowIndex, xls.OSDiskSummary['firstCellColumn'], xls.OSDiskSummary['rows'][row]['name'], selectHeaderStyle)
 	customerVMDataExcelTab.write_formula(currentRowIndex, xls.OSDiskSummary['firstCellColumn'] + 1 , countFormula, selectBodyStyle)
 	customerVMDataExcelTab.write_formula(currentRowIndex, xls.OSDiskSummary['firstCellColumn'] + 2 , priceFormula, selectBodyStyle)
-
 	
 #11 - BLOCK 9 - COST SUMMARY
-formulaTotalComputeCost="={0}*SUM({1}1:{1}{2})".format(currencyRateCell, columnBestVMPrice, xls.rowsForVMInput + 1)
+formulaTotalComputeCost="={0}*SUM({1}1:{1}{2})".format(currencyRateCell, columnBestYearVMPrice, xls.rowsForVMInput + 1)
 formulaTotalDiskCost="={0}*12*( SUM(C{1}:C{2}) + SUM({5}{3}:{5}{4})*'azure-standard-disk-prices'!C2 + SUM({6}{3}:{6}{4})*'azure-premium-disk-prices'!C2)".format(currencyRateCell, xls.dataDiskSummary['firstCellRow'] + 1 , xls.dataDiskSummary['firstCellRow'] + 1 +  totalNumDisks - 1, xls.managedDataDiskColumns['firstCellRow'] + 1 , xls.rowsForVMInput + 1, xls.alphabet[xls.managedStandardOSDiskColumn['firstColumnIndex']], xls.alphabet[xls.managedPremiumOSDiskColumn['firstColumnIndex']])
 formulaTotalASRCost ="={0}*12*SUM({1}{2}:{1}{3})*'azure-asr-prices'!A2".format(currencyRateCell, xls.getColumnLetterFromIndex(xls.ASRColumns['firstColumnIndex']), xls.ASRColumns['firstCellRow'] + 1, xls.rowsForVMInput + 1)
 formulaTotalCost="=SUM(B{0}:B{1})".format(xls.costSummary['firstCellRow'] + 2, xls.costSummary['firstCellRow'] + 2 + len(xls.costSummary['rows']) - 2)
@@ -359,6 +368,36 @@ customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costS
 customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['STORAGE']['order'], xls.costSummary['firstCellColumn'] + 1, formulaTotalDiskCost, selectBodyStyle)
 customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['ASR']['order']    , xls.costSummary['firstCellColumn'] + 1, formulaTotalASRCost, selectBodyStyle)
 customerVMDataExcelTab.write_formula(xls.costSummary['firstCellRow'] + xls.costSummary['rows']['TOTAL']['order']  , xls.costSummary['firstCellColumn'] + 1, formulaTotalCost, selectHeaderStyle)
+
+#11 - BLOCK 10 - CREATE VM CALCULATION COLUMNS
+	#PUT HEADERS
+for column in xls.computeSummaryColumns['columns']:
+	#GET COLUMN DATA
+	columnWidth = xls.computeSummaryColumns['columns'][column]['width']
+	columnName  = xls.computeSummaryColumns['columns'][column]['alias']
+	columnPositon = xls.computeSummaryColumns['firstColumnIndex'] + xls.computeSummaryColumns['columns'][column]['index']
+	
+	#SET WIDTH
+	customerVMDataExcelTab.set_column(columnPositon, columnPositon, columnWidth)
+	#SET HEADER
+	customerVMDataExcelTab.write(xls.computeSummaryColumns['firstCellRow'], columnPositon, columnName, selectHeaderStyle)
+
+	formulaCheapestSizePattern ="=IF({0}{1}={2}{1}, {3}{1}, IF({0}{1}={4}{1},{5}{1},{6}{1}))"	
+	formulaCheapestPricePattern="={0}{1}"
+	formulaCheapestModelPattern="= IF({2}{1}=\"\" ,\"\",IF({0}{1}={2}{1}, \"PAYG\", IF({0}{1}={3}{1},\"1Y RI\",\"3Y RI\")))"	 
+	
+	#FORMULAS AND STYLE FOR CALCULATIONS
+	for rowIndex in range(1,xls.rowsForVMInput):
+		if   column == 'CHEAPEST SIZE':
+			formula=formulaCheapestSizePattern.format(columnBestYearVMPrice, rowIndex+1, columnYearPAYGVMPrice, columnPAYGVMSize, columnYear1YResInsVMPrice, column1YResInsVMSize, column3YResInsVMSize)
+		elif column == 'CHEAPEST PRICE':
+			formula=formulaCheapestPricePattern.format(columnBestYearVMPrice, rowIndex+1)
+		elif column == 'CHEAPEST MODEL':
+			formula=formulaCheapestModelPattern.format(columnBestYearVMPrice, rowIndex+1, columnYearPAYGVMPrice, columnYear1YResInsVMPrice)		
+ 
+		customerVMDataExcelTab.write_formula(rowIndex, columnPositon, formula, selectBodyStyle)
+
+
 
 ####################################################################
 ############################ OTHER TABS	############################

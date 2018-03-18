@@ -47,8 +47,8 @@ class xlsStructure:
 				'default' : ''
 			},
 			'DATA STORAGE' : {
-				'alias' : 'DATA STORAGE',
-				'width' : 14,
+				'alias' : 'DATA STORAGE(GB)',
+				'width' : 19,
 				'index' : 3,
 				'default' : ''
 			},
@@ -115,11 +115,32 @@ class xlsStructure:
 			}
 		}	
 	}
-
+	#BLOCK 10
+	computeSummaryColumns = {
+		'firstCellRow':0,
+		'firstColumnIndex' : customerInputColumns['firstColumnIndex'] + len(customerInputColumns['columns']),	
+		'columns': {
+			'CHEAPEST SIZE' : {
+				'alias' : 'CHEAPEST VM SIZE',
+				'width' : 17,
+				'index' : 0
+			},
+			'CHEAPEST PRICE' : {
+				'alias' : 'CHEAPEST VM PRICE',
+				'width' : 18,
+				'index' : 1
+			},
+			'CHEAPEST MODEL' : {
+				'alias' : 'CHEAPEST MODEL',
+				'width' : 16,
+				'index' : 2
+			}
+		}	
+	}
 	#BLOCK 3	
 	VMCalculationColumns = {
 		'firstCellRow':0,
-		'firstColumnIndex' : customerInputColumns['firstColumnIndex'] + len(customerInputColumns['columns']),			
+		'firstColumnIndex' : computeSummaryColumns['firstColumnIndex'] + len(computeSummaryColumns['columns']),			
 		'columns': {
 			'BEST SIZE PAYG' : {
 				'alias' : 'BEST SIZE PAYG',
@@ -210,7 +231,7 @@ class xlsStructure:
 		'firstCellRow': 12,
 		'header': {
 			'width': 3,
-			'title': 'DATA DISK SUMMARY'
+			'title': 'DATA DISK SUMMARY (MONTH)'
 		},
 		'columns': {
 			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
@@ -225,7 +246,7 @@ class xlsStructure:
 		'firstCellRow': 31,
 		'header': {
 			'width': 3,
-			'title': 'OS DISK SUMMARY'
+			'title': 'OS DISK SUMMARY (MONTH)'
 		},
 		'columns': {
 			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
@@ -260,7 +281,7 @@ class xlsStructure:
 
 	#GIVEN A CALCULATION COLUMN RELATIVE INDEX, GET ABSOLUTE SPREADSHEET POSITION		
 	def getCalculationColumnPositionInExcel(columnIndex):
-		return columnIndex + xlsStructure.customerInputColumns['firstColumnIndex'] + len(xlsStructure.customerInputColumns['columns'])
+		return columnIndex + xlsStructure.VMCalculationColumns['firstColumnIndex']
 
 	#GIVEN AN ABSOLUTE INTEGER INDEX, GET COLUMN
 	def getColumnLetterFromIndex(columnIndex):
