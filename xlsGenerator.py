@@ -64,7 +64,7 @@ inputHeaderStyle.set_bg_color('#366092')
 inputBodyStyle = workbook.add_format()
 inputBodyStyle.set_align('center')
 inputBodyStyle.set_border(1)
-inputBodyStyle.set_bg_color('#b8cce4')
+inputBodyStyle.set_bg_color('#e6edf6')
 selectHeaderStyle = workbook.add_format()
 selectHeaderStyle.set_bold()
 selectHeaderStyle.set_align('center')
@@ -320,6 +320,24 @@ customerVMDataExcelTab.merge_range(headerRange, xls.OSDiskSummary['header']['tit
 	#PUT COLUMN HEADERS
 for column in xls.OSDiskSummary['columns']:
 	customerVMDataExcelTab.write(xls.OSDiskSummary['firstCellRow'] - 1, xls.OSDiskSummary['columns'][column]['order'] - 1, xls.OSDiskSummary['columns'][column]['name'], selectHeaderStyle)
+	#PUT ROWS
+standardOSDiskCountFormula="=SUM({0}{1}:{0}{2})".format( xls.alphabet[xls.managedStandardOSDiskColumn['firstColumnIndex']], xls.managedStandardOSDiskColumn['firstCellRow'] + 2, xls.rowsForVMInput + 1)
+premiumOSDiskCountFormula= "=SUM({0}{1}:{0}{2})".format( xls.alphabet[xls.managedPremiumOSDiskColumn['firstColumnIndex']] , xls.managedPremiumOSDiskColumn['firstCellRow'] + 2 , xls.rowsForVMInput + 1)
+standardOSDiskPriceFormulaPattern="=B{}*'azure-standard-disk-prices'!C2"
+premiumOSDiskPriceFormulaPattern= "=B{}*'azure-premium-disk-prices'!C2"
+for row in xls.OSDiskSummary['rows']:
+	currentRowIndex = xls.OSDiskSummary['firstCellRow'] - 1 + xls.OSDiskSummary['rows'][row]['order']
+	if row == 'standard':
+		countFormula=standardOSDiskCountFormula
+		priceFormula=standardOSDiskPriceFormulaPattern.format(currentRowIndex + 1)
+	else:
+		countFormula=premiumOSDiskCountFormula	
+		priceFormula=premiumOSDiskPriceFormulaPattern.format(currentRowIndex + 1)
+
+	customerVMDataExcelTab.write(currentRowIndex, xls.OSDiskSummary['firstCellColumn'], xls.OSDiskSummary['rows'][row]['name'], selectHeaderStyle)
+	customerVMDataExcelTab.write_formula(currentRowIndex, xls.OSDiskSummary['firstCellColumn'] + 1 , countFormula, selectBodyStyle)
+	customerVMDataExcelTab.write_formula(currentRowIndex, xls.OSDiskSummary['firstCellColumn'] + 2 , priceFormula, selectBodyStyle)
+
 	
 #11 - BLOCK 9 - COST SUMMARY
 formulaTotalComputeCost="={0}*SUM({1}1:{1}{2})".format(currencyRateCell, columnBestVMPrice, xls.rowsForVMInput + 1)
