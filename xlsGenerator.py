@@ -2,15 +2,21 @@
 
 import datetime
 import xlsxwriter
+import sys
 
 from xlsStructure import xlsStructure as xls
 import priceReaderCompute
 import priceReaderManagedDisk
 import priceReaderSiteRecovery
 
+region = 'europe-west'
+
 workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quote-Tool-{}.xlsx'
 today = datetime.date.today().strftime('%d%m%y')
-region = 'europe-west'
+workbookFile = workbookNamePattern.format(today)
+
+if len(sys.argv) > 1:
+	workbookFile=sys.argv[1]
 
 #KEY CELLS
 perfGainValueCell=xls.getAssumptionValueCell('PERF')
@@ -49,7 +55,6 @@ standardDiskPriceMatrix = priceReaderManagedDisk.getPriceMatrixStandard(region)
 numVmSizes = len(computePriceMatrix)
 
 #2 - CREATE WORKBOOKS
-workbookFile = workbookNamePattern.format(today)
 workbook = xlsxwriter.Workbook(workbookFile)
 
 #3 - ADD TABS
