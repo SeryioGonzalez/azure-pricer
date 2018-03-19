@@ -14,7 +14,6 @@ region = 'europe-west'
 
 #KEY CELLS
 perfGainValueCell=xls.getAssumptionValueCell('PERF')
-currencyRateCell=xls.getAssumptionValueCell('USD2EURO')
 #KEY COLUMN INDEX
 VMNameColumn=      xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['VM NAME']['index']))
 CPUColumn=         xls.getColumnLetterFromIndex(xls.getCustomerDataColumnPositionInExcel(xls.customerInputColumns['columns']['CPUs']['index']))
@@ -114,14 +113,6 @@ customerVMDataExcelTab.write_number(row, xls.assumptions['firstCellColumn'] + 1,
 customerVMDataExcelTab.data_validation(perfGainValueCell, {'validate': 'integer', 'criteria': 'between',
                                   'minimum': 0, 'maximum': 100, 'input_title': 'Enter an integer:',
                                   'input_message': 'between 0 and 100 on how better % Azure perf is'})
-
-	#ASSUMPTION - DOLLAR TO EURO
-category='USD2EURO'
-name=xls.assumptions['rows'][category]['name']
-row=xls.assumptions['firstCellRow'] + xls.assumptions['rows'][category]['order']
-defaultValue=xls.assumptions['rows'][category]['default']
-customerVMDataExcelTab.write(row, xls.assumptions['firstCellColumn'], name, inputHeaderStyle)
-customerVMDataExcelTab.write_number(row, xls.assumptions['firstCellColumn'] + 1, defaultValue, inputBodyStyle)	
 
 #5 - BLOCK 2 - CREATE CUSTOMER INPUT COLUMNS
 for column in xls.customerInputColumns['columns']:
@@ -232,7 +223,7 @@ for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceRead
 	diskDataIndexInDiskTab = diskIndex + 2
 	for rowIndex in range(1,xls.rowsForVMInput):
 		if diskIndex == 0:
-			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}<'azure-standard-disk-prices'!B{4}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
+			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}<'azure-standard-disk-prices'!B{4}, {3}{1}>0),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
 		else:
 			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}>'azure-standard-disk-prices'!B{4},{3}{1}<'azure-standard-disk-prices'!B{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab)
 		customerVMDataExcelTab.write_formula(rowIndex, columnIndex, formula, selectBodyStyle)	
@@ -250,7 +241,7 @@ for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceRead
 	diskDataIndexInDiskTab = diskIndex + 2
 	for rowIndex in range(1,xls.rowsForVMInput):
 		if diskIndex == 0:
-			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}<'azure-premium-disk-prices'!B{4}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
+			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}<'azure-premium-disk-prices'!B{4},{3}{1}>0),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
 		else:
 			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}>'azure-premium-disk-prices'!B{4},{3}{1}<'azure-premium-disk-prices'!B{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab)
 		customerVMDataExcelTab.write_formula(rowIndex, columnIndex, formula, selectBodyStyle)	
@@ -349,9 +340,9 @@ for row in xls.OSDiskSummary['rows']:
 	customerVMDataExcelTab.write_formula(currentRowIndex, xls.OSDiskSummary['firstCellColumn'] + 2 , priceFormula, selectBodyStyle)
 	
 #11 - BLOCK 9 - COST SUMMARY
-formulaTotalComputeCost="={0}*SUM({1}1:{1}{2})".format(currencyRateCell, columnBestYearVMPrice, xls.rowsForVMInput + 1)
-formulaTotalDiskCost="={0}*12*( SUM(C{1}:C{2}) + SUM({5}{3}:{5}{4})*'azure-standard-disk-prices'!C2 + SUM({6}{3}:{6}{4})*'azure-premium-disk-prices'!C2)".format(currencyRateCell, xls.dataDiskSummary['firstCellRow'] + 1 , xls.dataDiskSummary['firstCellRow'] + 1 +  totalNumDisks - 1, xls.managedDataDiskColumns['firstCellRow'] + 1 , xls.rowsForVMInput + 1, xls.alphabet[xls.managedStandardOSDiskColumn['firstColumnIndex']], xls.alphabet[xls.managedPremiumOSDiskColumn['firstColumnIndex']])
-formulaTotalASRCost ="={0}*12*SUM({1}{2}:{1}{3})*'azure-asr-prices'!A2".format(currencyRateCell, xls.getColumnLetterFromIndex(xls.ASRColumns['firstColumnIndex']), xls.ASRColumns['firstCellRow'] + 1, xls.rowsForVMInput + 1)
+formulaTotalComputeCost="=SUM({0}1:{0}{1})".format(columnBestYearVMPrice, xls.rowsForVMInput + 1)
+formulaTotalDiskCost="=12*( SUM(C{0}:C{1}) + SUM({4}{2}:{4}{3})*'azure-standard-disk-prices'!C2 + SUM({5}{2}:{5}{3})*'azure-premium-disk-prices'!C2)".format(xls.dataDiskSummary['firstCellRow'] + 1 , xls.dataDiskSummary['firstCellRow'] + 1 +  totalNumDisks - 1, xls.managedDataDiskColumns['firstCellRow'] + 1 , xls.rowsForVMInput + 1, xls.alphabet[xls.managedStandardOSDiskColumn['firstColumnIndex']], xls.alphabet[xls.managedPremiumOSDiskColumn['firstColumnIndex']])
+formulaTotalASRCost ="=12*SUM({0}{1}:{0}{2})*'azure-asr-prices'!A2".format(xls.getColumnLetterFromIndex(xls.ASRColumns['firstColumnIndex']), xls.ASRColumns['firstCellRow'] + 1, xls.rowsForVMInput + 1)
 formulaTotalCost="=SUM(B{0}:B{1})".format(xls.costSummary['firstCellRow'] + 2, xls.costSummary['firstCellRow'] + 2 + len(xls.costSummary['rows']) - 2)
 	#CALCULATE AND PUT HEADER
 firstColumnLetter=xls.getColumnLetterFromIndex(xls.costSummary['firstCellColumn'])

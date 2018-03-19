@@ -18,8 +18,7 @@ class xlsStructure:
 			'title': 'ASSUMPTIONS'
 		},
 		'rows': {
-			'PERF':    {'name': 'PERF GAIN', 'order':1, 'default':0},
-			'USD2EURO':{'name': '$ to €',    'order':2, 'default':0.82}
+			'PERF':    {'name': 'PERF GAIN', 'order':1, 'default':0}
 		}
 	}
 	
@@ -228,7 +227,7 @@ class xlsStructure:
 	#BLOCK 7
 	dataDiskSummary = {
 		'firstCellColumn':0,
-		'firstCellRow': 12,
+		'firstCellRow': 11,
 		'header': {
 			'width': 3,
 			'title': 'DATA DISK SUMMARY (MONTH)'
@@ -236,14 +235,14 @@ class xlsStructure:
 		'columns': {
 			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
 			'COUNT':     {'name': 'COUNT'    , 'order':2},
-			'PRICE':     {'name': 'PRICE($)' , 'order':3}
+			'PRICE':     {'name': 'PRICE(€)' , 'order':3}
 		}
 	}
 
 	#BLOCK 8
 	OSDiskSummary = {
 		'firstCellColumn':0,
-		'firstCellRow': 31,
+		'firstCellRow': 30,
 		'header': {
 			'width': 3,
 			'title': 'OS DISK SUMMARY (MONTH)'
@@ -251,7 +250,7 @@ class xlsStructure:
 		'columns': {
 			'DISK SIZE': {'name': 'DISK SIZE', 'order':1},
 			'COUNT':     {'name': 'COUNT'    , 'order':2},
-			'PRICE':     {'name': 'PRICE($)'    , 'order':3}
+			'PRICE':     {'name': 'PRICE(€)'    , 'order':3}
 		},
 		'rows': {
 			'standard': {'name': 'S4', 'order':1},
@@ -262,10 +261,10 @@ class xlsStructure:
 	#BLOCK 9	
 	costSummary = {
 		'firstCellColumn':0,
-		'firstCellRow':4,		
+		'firstCellRow':3,		
 		'header': {
 			'width': 2,
-			'title': 'YEAR TOTALS - €'
+			'title': 'YEAR TOTALS(€)'
 		},
 		'rows': {
 			'COMPUTE': {'name': 'COMPUTE', 'order':1},
