@@ -3,10 +3,13 @@
 Unofficial tool for providing a first order estimation on Azure migration projects to Western Europe.
 It generates a spreadsheet for performing calculations
 
-For using it:<br/>
+For creating a new spreadsheet:<br/>
 ```
 $ python3 xlsGenerator.py [nameOfOutputXLSFile]
 ```
+
+The tool will generate a new spreadsheet, equivalent to <a href="">Azure-Quote-Tool-190318.xlsx</a>
+
 # Considerations
 
 - This is a unofficial tool for providing a first order estimation on Azure migration projects
