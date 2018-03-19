@@ -8,7 +8,7 @@ For creating a new spreadsheet:<br/>
 $ python3 xlsGenerator.py [nameOfOutputXLSFile]
 ```
 
-The tool will generate a new spreadsheet, equivalent to <a href="">Azure-Quote-Tool-190318.xlsx</a>
+The tool will generate a new spreadsheet, equivalent to <a href="https://github.com/SeryioGonzalez/azure-pricer/raw/master/aux/Azure-Quote-Tool-190318.xlsx">Azure-Quote-Tool-190318.xlsx</a>
 
 # Considerations
 
