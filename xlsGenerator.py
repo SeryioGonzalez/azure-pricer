@@ -58,6 +58,7 @@ numVmSizes = len(computePriceMatrix)
 workbook = xlsxwriter.Workbook(workbookFile)
 
 #3 - ADD TABS
+introTab = workbook.add_worksheet('INTRO')
 customerVMDataExcelTab = workbook.add_worksheet('customer-vm-list')
 azureVMDataBaseExcelTab = workbook.add_worksheet('azure-vm-prices-base')
 azureVMData1YExcelTab = workbook.add_worksheet('azure-vm-prices-1Y')
@@ -92,6 +93,11 @@ selectBodyStyle = workbook.add_format()
 selectBodyStyle.set_align('center')
 selectBodyStyle.set_border(1)
 selectBodyStyle.set_bg_color('#d8e4bc')
+
+########################################################
+#####################PUT DISCLAIMERS####################
+########################################################
+introTab.insert_image('A1', 'media/slide.jpg')
 
 ########################################################
 #####################PUT DATA BLOCKS####################
