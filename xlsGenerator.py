@@ -167,16 +167,17 @@ for column in xls.VMCalculationColumns['columns']:
 	customerVMDataExcelTab.write(xls.VMCalculationColumns['firstCellRow'], columnPositon, columnName, selectHeaderStyle)
 
 #VIRTUAL MACHINE FORMULAS
-formulaVMBaseNamePattern    ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-base'!G$2:H${5}, 2, 0),\"\")"
-formulaVM1YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-1Y'!G$2:H${5}  , 2, 0),\"\")"
-formulaVM3YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {3}{1} & {4}{1},'azure-vm-prices-3Y'!G$2:H${5}  , 2, 0),\"\")"
+formulaVMBaseNamePattern    ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {4}{1} & {3}{1},'azure-vm-prices-base'!G$2:H${5}, 2, 0),\"\")"
+formulaVM1YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {4}{1} & {3}{1},'azure-vm-prices-1Y'!G$2:H${5}  , 2, 0),\"\")"
+formulaVM3YNamePattern      ="=IF({0}{1}=\"YES\",VLOOKUP({2}{1} & {4}{1} & {3}{1},'azure-vm-prices-3Y'!G$2:H${5}  , 2, 0),\"\")"
 formulaVMYearPAYGPattern    ="=IF({0}{1}=\"YES\",{2}{1}*{3}{1}*12,\"\")"
 formulaVMYear1YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
 formulaVMYear3YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
 formulaBestPricePattern     ="=IF({0}{1}=\"YES\",IF({2}{1}=\"YES\", MIN({3}{1}:{4}{1}), {3}{1}),\"\")"
-formulaVMBaseMinPricePattern="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!D$2:D${3},{7}{1}, 'azure-vm-prices-base'!E$2:E${3},{8}{1}), _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!D$2:D${3},{7}{1}, 'azure-vm-prices-base'!E$2:E${3},{8}{1})),\"\")"
-formulaVM1YMinPricePattern  ="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${3},   'azure-vm-prices-1Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!B$2:B${3}  ,\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-1Y'!E$2:E${3},  {8}{1}), _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${3},   'azure-vm-prices-1Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!B$2:B${3},  \">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-1Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-1Y'!E$2:E${3},  {8}{1})),\"\")"
-formulaVM3YMinPricePattern  ="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , _xlfn.MINIFS('azure-vm-prices-3Y'!C$2:C${3},   'azure-vm-prices-3Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!B$2:B${3}  ,\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-3Y'!E$2:E${3},  {8}{1}), _xlfn.MINIFS('azure-vm-prices-3Y'!I$2:I${3},   'azure-vm-prices-3Y'!A$2:A${3}  ,\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!B$2:B${3},  \">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-3Y'!D$2:D${3},  {7}{1}, 'azure-vm-prices-3Y'!E$2:E${3},  {8}{1})),\"\")"
+
+formulaVMBaseMinPricePattern="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , IF({7}{1}=\"YES\", _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!D$2:D${3},{7}{1}, 'azure-vm-prices-base'!E$2:E${3},{8}{1}), _xlfn.MINIFS('azure-vm-prices-base'!I$2:I${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!E$2:E${3},{8}{1})), IF({7}{1}=\"YES\", _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!D$2:D${3},{7}{1}, 'azure-vm-prices-base'!E$2:E${3},{8}{1}), _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${3}, 'azure-vm-prices-base'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100, 'azure-vm-prices-base'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100, 'azure-vm-prices-base'!E$2:E${3},{8}{1}))), \"\")"
+formulaVM1YMinPricePattern  ="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , IF({7}{1}=\"YES\", _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${3},   'azure-vm-prices-1Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!D$2:D${3},{7}{1},   'azure-vm-prices-1Y'!E$2:E${3},{8}{1}),   _xlfn.MINIFS('azure-vm-prices-1Y'!I$2:I${3},   'azure-vm-prices-1Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!E$2:E${3},{8}{1})),   IF({7}{1}=\"YES\", _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${3},   'azure-vm-prices-1Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!D$2:D${3},{7}{1},   'azure-vm-prices-1Y'!E$2:E${3},{8}{1}),   _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${3},   'azure-vm-prices-1Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-1Y'!E$2:E${3},{8}{1}))),   \"\")"
+formulaVM3YMinPricePattern  ="=IF({0}{1}=\"YES\", IF({2}{1}=\"YES\" , IF({7}{1}=\"YES\", _xlfn.MINIFS('azure-vm-prices-3Y'!I$2:I${3},   'azure-vm-prices-3Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!D$2:D${3},{7}{1},   'azure-vm-prices-3Y'!E$2:E${3},{8}{1}),   _xlfn.MINIFS('azure-vm-prices-3Y'!I$2:I${3},   'azure-vm-prices-3Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!E$2:E${3},{8}{1})),   IF({7}{1}=\"YES\", _xlfn.MINIFS('azure-vm-prices-3Y'!C$2:C${3},   'azure-vm-prices-3Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!D$2:D${3},{7}{1},   'azure-vm-prices-3Y'!E$2:E${3},{8}{1}),   _xlfn.MINIFS('azure-vm-prices-3Y'!C$2:C${3},   'azure-vm-prices-3Y'!A$2:A${3},\">=\"&{4}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!B$2:B${3},\">=\"&{6}{1}*(100-{5})/100,   'azure-vm-prices-3Y'!E$2:E${3},{8}{1}))),   \"\")"
 
 #FORMULAS AND STYLE FOR CALCULATIONS
 for rowIndex in range(1,xls.rowsForVMInput):
@@ -466,7 +467,7 @@ for size in sorted(computePriceMatrix):
 	azureVMDataBaseExcelTab.write(currentLineBase, 3, SAP, inputBodyStyle)
 	azureVMDataBaseExcelTab.write(currentLineBase, 4, GPU, inputBodyStyle)
 	azureVMDataBaseExcelTab.write(currentLineBase, 5, isBurstable, inputBodyStyle)
-	auxFormula='=CONCATENATE(C{0},D{0},E{0})'.format(currentLineBase+1)
+	auxFormula='=CONCATENATE(C{0},E{0},D{0})'.format(currentLineBase+1)
 	azureVMDataBaseExcelTab.write_formula(currentLineBase, 6, auxFormula, inputBodyStyle)
 	azureVMDataBaseExcelTab.write(currentLineBase, 7, name, inputBodyStyle)
 	
@@ -490,7 +491,7 @@ for size in sorted(computePriceMatrix):
 		azureVMData1YExcelTab.write(currentLine1Y, 3, SAP, inputBodyStyle)
 		azureVMData1YExcelTab.write(currentLine1Y, 4, GPU, inputBodyStyle)
 		azureVMData1YExcelTab.write(currentLine1Y, 5, isBurstable, inputBodyStyle)
-		auxFormula='=CONCATENATE(C{0},D{0},E{0})'.format(currentLine1Y+1)
+		auxFormula='=CONCATENATE(C{0},E{0},D{0})'.format(currentLine1Y+1)
 		azureVMData1YExcelTab.write_formula(currentLine1Y, 6, auxFormula, inputBodyStyle)
 		azureVMData1YExcelTab.write(currentLine1Y, 7, name, inputBodyStyle)
 		azureVMData1YExcelTab.write(currentLine1Y, 8, noBurstablePrice1Y, inputBodyStyle)	
@@ -504,7 +505,7 @@ for size in sorted(computePriceMatrix):
 		azureVMData3YExcelTab.write(currentLine3Y, 3, SAP, inputBodyStyle)
 		azureVMData3YExcelTab.write(currentLine3Y, 4, GPU, inputBodyStyle)
 		azureVMData3YExcelTab.write(currentLine3Y, 5, isBurstable, inputBodyStyle)
-		auxFormula='=CONCATENATE(C{0},D{0},E{0})'.format(currentLine3Y+1)
+		auxFormula='=CONCATENATE(C{0},E{0},D{0})'.format(currentLine3Y+1)
 		azureVMData3YExcelTab.write_formula(currentLine3Y, 6, auxFormula, inputBodyStyle)
 		azureVMData3YExcelTab.write(currentLine3Y, 7, name, inputBodyStyle)
 		azureVMData3YExcelTab.write(currentLine3Y, 8, noBurstablePrice3Y, inputBodyStyle)	
