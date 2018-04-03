@@ -43,3 +43,4 @@ The tool will generate a new spreadsheet, equivalent to <a href="https://github.
 - Outgoing bandwidth costs
 - VM Backups
 - Cost for services other than compute, managed disks and ASR
+- When using Western Europe as primary region, North Europe would mostly used for ASR recovery. Prices of disks in North Europe would be different than in WEU, but for simplicity, the tool considers WEU prices
