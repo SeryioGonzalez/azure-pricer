@@ -23,7 +23,9 @@ The tool will generate a new spreadsheet, equivalent to <a href="https://github.
 # Services considered for a quote
 
 - Managed Disks for OS and data drives
-- Premium or Standard Disk for OS and data dries
+- Premium or Standard Managed Disk for OS and data drives
+	- OS Disk defaulted to 32GBs (HDD or SDD)
+	- Larger OS disk sizes should be added by hand
 - ASR Costs per VM
 - ASR Disk duplication costs
 - VMs with no software license, i.e., quoting Ubuntu VMs
