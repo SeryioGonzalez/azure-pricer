@@ -33,8 +33,8 @@ The tool will generate a new spreadsheet, equivalent to <a href="https://github.
 - VMs certified for SAP NetWeaver loads
 - VMs equipped with GPU cards
 - Usage of burstable VMs
-- Percentual performance improvement in Azure
-	- If I input 20% performance win per CPU and memory on Azure, a VM request for 100 GB RAM will look VMs sises starting at 80 GB
+- Percent performance improvement in Azure
+	- If I input 20% performance win per CPU and memory on Azure, a VM request for 100 GB RAM will look VMs sizes starting at 80 GB
 
 # Additional points to be added for a full quote
 
