@@ -9,6 +9,7 @@ $ python3 xlsGenerator.py [nameOfOutputXLSFile]
 ```
 
 The tool will generate a new spreadsheet, equivalent to <a href="https://github.com/SeryioGonzalez/azure-pricer/raw/master/aux/Azure-Quote-Tool-030418.xlsx">Azure-Quote-Tool-030418.xlsx</a>
+It works for Excel 2016 and beyond
 
 # Considerations
 
