@@ -49,19 +49,30 @@ def flagBurstable(formattedVMSize):
 	else:
 		return "NO"
 	
-def getPriceMatrix(region):
-	
-	with urllib.request.urlopen(urlPrice1YeaPublicAPI) as url:
-		data1YeaPrice = json.loads(url.read().decode())
-		regionSizes1Year = {k:v['prices'][region]['value'] for (k,v) in data1YeaPrice['offers'].items() if 'linux' in k and 'standard' in k and region in v['prices']}	
+def getOS(sizeName):
+	return sizeName.split('-')[0]
+
+def isSSD(cleanSizeName):
+	if 's' in cleanSizeName:
+		return 'YES'
+	else:
+		return 'NO'
 		
-	with urllib.request.urlopen(urlPrice3YeaPublicAPI) as url:
-		data3YeaPrice = json.loads(url.read().decode())
-		regionSizes3Year = {k:v['prices'][region]['value'] for (k,v) in data3YeaPrice['offers'].items() if 'linux' in k and 'standard' in k and region in v['prices']}	
+def getPriceMatrix(regions):
 	
 	with urllib.request.urlopen(urlPriceBasePublicAPI) as url:
-		dataBasePrice = json.loads(url.read().decode())
-		regionSizes  = {cleanSizeName(sizeName): { \
+		dataBasePrice = json.loads(url.read().decode())	
+	with urllib.request.urlopen(urlPrice1YeaPublicAPI) as url:
+		data1YeaPrice = json.loads(url.read().decode())
+	with urllib.request.urlopen(urlPrice3YeaPublicAPI) as url:
+		data3YeaPrice = json.loads(url.read().decode())
+
+	allRegionsSizes = {}	
+	for region in regions:
+		regionSizes1Year = {k:v['prices'][region]['value'] for (k,v) in data1YeaPrice['offers'].items() if 'standard' in k and region in v['prices']}	
+		regionSizes3Year = {k:v['prices'][region]['value'] for (k,v) in data3YeaPrice['offers'].items() if 'standard' in k and region in v['prices']}	
+		
+		thisRegionSizes  = {getOS(sizeName)+'-'+cleanSizeName(sizeName)+'-'+region : { \
 								'payg': v['prices'][region]['value'], \
 								'1y': get1YeaPrice(sizeName, regionSizes1Year), \
 								'3y': get3YeaPrice(sizeName, regionSizes3Year), \
@@ -69,7 +80,12 @@ def getPriceMatrix(region):
 								'ram':v['ram'], \
 								'sap': getSapCapable(cleanSizeName(sizeName)), \
 								'gpu': getGPUCapable(v),
-								'burstable': flagBurstable(cleanSizeName(sizeName)) 
-								} for (sizeName,v) in dataBasePrice['offers'].items() if 'linux' in sizeName and 'standard' in sizeName and region in v['prices']}
-
-	return regionSizes
+								'burstable': flagBurstable(cleanSizeName(sizeName)),
+								'os' : getOS(sizeName),
+								'region': region,
+								'ssd': isSSD(cleanSizeName(sizeName))
+								} for (sizeName,v) in dataBasePrice['offers'].items() if 'standard' in sizeName and region in v['prices']}
+	
+		allRegionsSizes.update(thisRegionSizes)
+	
+	return allRegionsSizes
