@@ -7,7 +7,15 @@ It generates a spreadsheet for performing calculations
 
 For creating a new spreadsheet:<br/>
 ```
-$ python3 xlsGenerator.py [nameOfOutputXLSFile]
+#ONLY IF YOU HAD NOT INSTALLED PIP3 AND THE XLSWRITER LIBRARY
+$ sudo apt install -y python3-pip
+$ pip3 install xlsxwriter
+
+#COMMAND REQUIRED FOR CREATING A SPREADSHEET
+# python3 xlsGenerator.py [nameOfOutputXLSFile]
+$ python3 xlsGenerator.py Azure-Quote-Tool-$(date +%d%m%y).xlsx
+$ ls -1
+Azure-Quote-Tool-020618.xlsx
 ```
 
 It works for Excel 2016 and beyond
