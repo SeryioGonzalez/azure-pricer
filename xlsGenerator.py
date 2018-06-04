@@ -3,22 +3,25 @@
 import datetime
 import xlsxwriter
 import sys
+import os
 
 from xlsStructure import xlsStructure as xls
 import priceReaderCompute
 import priceReaderManagedDisk
 import priceReaderSiteRecovery
 
-region = 'europe-west'
+workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quote-Tool-{}.xlsx'
+installationdir = '/home/sergio/test/azure-pricer'
 regions=['asia-pacific-east', 'asia-pacific-southeast', 'australia-central', 'australia-central-2', 'australia-east','australia-southeast', 'brazil-south', 'canada-central', 'canada-east', 'central-india', 'europe-north', 'europe-west', 'france-central', 'france-south', 'germany-central', 'germany-northeast', 'japan-east', 'japan-west', 'korea-central', 'korea-south', 'south-india', 'united-kingdom-south', 'united-kingdom-west', 'us-central', 'us-east', 'us-east-2', 'usgov-arizona', 'usgov-iowa', 'usgov-texas', 'usgov-virginia', 'us-north-central', 'us-south-central', 'us-west', 'us-west-2', 'us-west-central', 'west-india']
 
-workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quote-Tool-{}.xlsx'
 today = datetime.date.today().strftime('%d%m%y')
 workbookFile = workbookNamePattern.format(today)
 
 if len(sys.argv) > 1:
 	workbookFile=sys.argv[1]
-
+if len(sys.argv) > 2:
+	installationdir=sys.argv[2] 
+	
 #KEY CELLS
 perfGainValueCell=xls.getAssumptionValueCell('PERF')
 modeCell=xls.getAssumptionValueCell('MODE')
@@ -108,7 +111,7 @@ selectBodyStyle.set_bg_color('#d8e4bc')
 ########################################################
 #####################PUT DISCLAIMERS####################
 ########################################################
-introTab.insert_image('A1', 'media/slide.jpg')
+introTab.insert_image('A1', installationdir+'media/slide.jpg'))
 
 ########################################################
 #####################PUT DATA BLOCKS####################
