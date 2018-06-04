@@ -111,7 +111,7 @@ selectBodyStyle.set_bg_color('#d8e4bc')
 ########################################################
 #####################PUT DISCLAIMERS####################
 ########################################################
-introTab.insert_image('A1', installationdir+'media/slide.jpg'))
+introTab.insert_image('A1', installationdir+'media/slide.jpg')
 
 ########################################################
 #####################PUT DATA BLOCKS####################
