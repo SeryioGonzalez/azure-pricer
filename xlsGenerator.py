@@ -14,6 +14,11 @@ workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quote-Tool-{}.xlsx'
 installationdir = '/home/sergio/test/azure-pricer/' 
 regions=['asia-pacific-east', 'asia-pacific-southeast', 'australia-central', 'australia-central-2', 'australia-east','australia-southeast', 'brazil-south', 'canada-central', 'canada-east', 'central-india', 'europe-north', 'europe-west', 'france-central', 'france-south', 'germany-central', 'germany-northeast', 'japan-east', 'japan-west', 'korea-central', 'korea-south', 'south-india', 'united-kingdom-south', 'united-kingdom-west', 'us-central', 'us-east', 'us-east-2', 'usgov-arizona', 'usgov-iowa', 'usgov-texas', 'usgov-virginia', 'us-north-central', 'us-south-central', 'us-west', 'us-west-2', 'us-west-central', 'west-india']
 
+numVmSizesCheck   = 6900
+numASRSkusCheck   = 33
+numPremDisksCheck = 276
+numStanDisksCheck = 276
+
 today = datetime.date.today().strftime('%d%m%y')
 workbookFile = workbookNamePattern.format(today)
 
@@ -62,7 +67,25 @@ computePriceMatrix = priceReaderCompute.getPriceMatrix(regions)
 siteRecoveryPriceMatrix = priceReaderSiteRecovery.getPriceMatrix(regions)
 premiumDiskPriceMatrix  = priceReaderManagedDisk.getPriceMatrixPremium(regions)
 standardDiskPriceMatrix = priceReaderManagedDisk.getPriceMatrixStandard(regions)
+
 numVmSizes = len(computePriceMatrix)
+numSiteRecoverySKUs = len(siteRecoveryPriceMatrix)
+numPremiumDiskSKUs  = len(premiumDiskPriceMatrix)
+numStandardDiskSKUs = len(standardDiskPriceMatrix)
+
+#3 - CHECK EVERYTHING IS OK
+if numVmSizes < numVmSizesCheck:
+	logger("Issue with number of VMs read: " +str(numVmSizes))
+	sys.exit(1)
+if numSiteRecoverySKUs < numASRSkusCheck:
+	logger("Issue with number of ASR SKUs read: " +str(numSiteRecoverySKUs))
+	sys.exit(1)
+if numPremiumDiskSKUs  < numPremDisksCheck:
+	logger("Issue with number of Premium Disks read: " +str(numPremiumDiskSKUs))
+	sys.exit(1)
+if numStandardDiskSKUs < numStanDisksCheck:
+	logger("Issue with number of Standard Disks read: " +str(numStandardDiskSKUs))
+	sys.exit(1)
 
 #2 - CREATE WORKBOOKS
 workbook = xlsxwriter.Workbook(workbookFile)

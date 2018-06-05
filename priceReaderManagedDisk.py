@@ -11,7 +11,7 @@ def getPriceMatrixStandard(regions):
 		dataBasePrice = json.loads(url.read().decode())
 		
 	allRegionsSizes = {}	
-	keyWord='standard-s'
+	keyWord='standardhdd-s'
 	
 	for region in regions:
 		regionSizes  = {region + "-" + str(data['size']) : {'price':data['prices'][region]['value'], 'name':diskName.upper().split("-")[1], 'region':region, 'size':data['size']} for (diskName,data) in dataBasePrice['offers'].items() if keyWord in diskName and 'snapshot' not in diskName and region in data['prices']}
@@ -19,13 +19,12 @@ def getPriceMatrixStandard(regions):
 
 	return allRegionsSizes
 
-	
 def getPriceMatrixPremium(regions):
 	with urllib.request.urlopen(urlPriceManagedDiskPublicAPI) as url:
 		dataBasePrice = json.loads(url.read().decode())
 		
 	allRegionsSizes = {}	
-	keyWord='premium-p'
+	keyWord='premiumssd-p'
 	
 	for region in regions:
 		regionSizes  = {region + "-" + str(data['size']) : {'price':data['prices'][region]['value'], 'name':diskName.upper().split("-")[1], 'region':region, 'size':data['size']} for (diskName,data) in dataBasePrice['offers'].items() if keyWord in diskName and region in data['prices']}
