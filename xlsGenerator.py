@@ -71,7 +71,7 @@ standardDiskPriceMatrix = priceReaderManagedDisk.getPriceMatrixStandard(regions)
 numVmSizes = len(computePriceMatrix)
 numSiteRecoverySKUs = len(siteRecoveryPriceMatrix)
 numPremiumDiskSKUs  = len(premiumDiskPriceMatrix)
-numStandardDiskSKUs = len(standardDiskPriceMatrix) 
+numStandardDiskSKUs = len(standardDiskPriceMatrix)  
 
 #3 - CHECK EVERYTHING IS OK
 if numVmSizes < numVmSizesCheck:

@@ -9,7 +9,7 @@ standardDiskSizes = ['S4', 'S6', 'S10', 'S15', 'S20', 'S30', 'S40', 'S50']
 def getPriceMatrixStandard(regions):
 	with urllib.request.urlopen(urlPriceManagedDiskPublicAPI) as url:
 		dataBasePrice = json.loads(url.read().decode())
-		 
+		  
 	allRegionsSizes = {}	
 	keyWord='standardhdd-s'
 	
