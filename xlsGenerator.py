@@ -279,13 +279,13 @@ for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceRead
 	customerVMDataExcelTab.set_column(columnIndex, columnIndex, dataDiskColumnWidth) 		
 	#SET HEADER
 	customerVMDataExcelTab.write(xls.managedDataDiskColumns['firstCellRow'], columnIndex, dataDiskPrefix+diskName, selectHeaderStyle)
-	#SET FORMULA
-	diskDataIndexInDiskTab = diskIndex + 2
+	#SET FORMULAS
+	diskDataIndexInDiskTab = diskIndex + 2 
 	for rowIndex in range(1,xls.rowsForVMInput):
 		if diskIndex == 0:
-			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}<'azure-standard-disk-prices'!G{4}, {3}{1}>0),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
+			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}<='azure-standard-disk-prices'!G{4}, {3}{1}>0),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
 		else:
-			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}>'azure-standard-disk-prices'!G{4},{3}{1}<'azure-standard-disk-prices'!G{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab)
+			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}>'azure-standard-disk-prices'!G{4},{3}{1} <='azure-standard-disk-prices'!G{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab)
 		customerVMDataExcelTab.write_formula(rowIndex, columnIndex, formula, selectBodyStyle)	
 		
 	#PREMIUM DATA DISKS
