@@ -11,7 +11,7 @@ import priceReaderManagedDisk
 import priceReaderSiteRecovery
 
 workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quote-Tool-{}.xlsx'
-installationdir = '/home/sergio/azure-pricer/' 
+installationdir = '/home/sergio/azure/azure-pricer/' 
 regions=['asia-pacific-east', 'asia-pacific-southeast', 'australia-central', 'australia-central-2', 'australia-east','australia-southeast', 'brazil-south', 'canada-central', 'canada-east', 'central-india', 'europe-north', 'europe-west', 'france-central', 'france-south', 'germany-central', 'germany-northeast', 'japan-east', 'japan-west', 'korea-central', 'korea-south', 'south-india', 'united-kingdom-south', 'united-kingdom-west', 'us-central', 'us-east', 'us-east-2', 'usgov-arizona', 'usgov-iowa', 'usgov-texas', 'usgov-virginia', 'us-north-central', 'us-south-central', 'us-west', 'us-west-2', 'us-west-central', 'west-india']
 
 numVmSizesCheck   = 6900
@@ -218,9 +218,10 @@ for column in xls.VMCalculationColumns['columns']:
 	customerVMDataExcelTab.write(xls.VMCalculationColumns['firstCellRow'], columnPositon, columnName, selectHeaderStyle)
 
 #VIRTUAL MACHINE FORMULAS
-formulaVMYearPAYGPattern    ="=IF({0}{1}=\"YES\",{2}{1}*{3}{1}*12,\"\")"
-formulaVMYear1YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
-formulaVMYear3YRIPattern    ="=IF({0}{1}=\"YES\",{2}{1}*8760,\"\")"
+formulaVMYearPAYGPattern    ="=IF({0}{1}=\"YES\", {2}{1}*{3}{1}*12*{4}{1},\"\")"
+formulaVMYear1YRIPattern    ="=IF({0}{1}=\"YES\", {2}{1}*8760*{3}{1}     ,\"\")"
+formulaVMYear3YRIPattern    ="=IF({0}{1}=\"YES\", {2}{1}*8760*{3}{1}     ,\"\")"
+
 formulaBestPricePattern     ="=IF({0}{1}=\"YES\",IF({2}{1}=\"YES\", MIN({3}{1}:{4}{1}), {3}{1}),\"\")"
 
 formulaBestPricePattern     ="=IF({0}{1}=\"YES\",  _xlfn.SWITCH({2}{1},  \"YES ALL\",  _xlfn.MINIFS({3}{1}:{4}{1}, {3}{1}:{4}{1}, \">0\"), \"YES 1Y\",  _xlfn.MINIFS({3}{1}:{5}{1}, {3}{1}:{5}{1}, \">0\"), \"NO\", {3}{1} ), \"\")"
@@ -253,13 +254,13 @@ for rowIndex in range(1,xls.rowsForVMInput):
 	formulaVM3YName  =formulaVM3YNamePattern.format(    dataOKColumn, rowIndex+1, xls.alphabet[firstCalculationColumnIndex + 5] , SAPColumn , GPUColumn , numVmSizes+1, regionColumn )
 	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 4, formulaVM3YName,   selectBodyStyle)		
 
-	formulaVMYearPAYG=formulaVMYearPAYGPattern.format(dataOKColumn, rowIndex+1, hoursMonthColumn, xls.getVMCalculationColumn('PRICE(H) PAYG'))
+	formulaVMYearPAYG=formulaVMYearPAYGPattern.format(dataOKColumn, rowIndex+1, hoursMonthColumn, xls.getVMCalculationColumn('PRICE(H) PAYG'), xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 6, formulaVMYearPAYG, selectBodyStyle)
 	
-	formulaVMYear1YRI=formulaVMYear1YRIPattern.format(dataOKColumn, rowIndex+1, xls.getVMCalculationColumn('PRICE(H) 1Y'))
+	formulaVMYear1YRI=formulaVMYear1YRIPattern.format(dataOKColumn, rowIndex+1, xls.getVMCalculationColumn('PRICE(H) 1Y'), xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 7, formulaVMYear1YRI, selectBodyStyle)
 
-	formulaVMYear3YRI=formulaVMYear3YRIPattern.format(dataOKColumn, rowIndex+1, xls.getVMCalculationColumn('PRICE(H) 3Y'))
+	formulaVMYear3YRI=formulaVMYear3YRIPattern.format(dataOKColumn, rowIndex+1, xls.getVMCalculationColumn('PRICE(H) 3Y'), xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, firstCalculationColumnIndex + 8, formulaVMYear3YRI, selectBodyStyle)
 	
 	formulaBestPrice=formulaBestPricePattern.format(dataOKColumn, rowIndex+1, reseInsColumn, xls.getVMCalculationColumn('PAYG'), xls.getVMCalculationColumn('3Y RI'), xls.getVMCalculationColumn('1Y RI'))
@@ -270,6 +271,7 @@ for rowIndex in range(1,xls.rowsForVMInput):
 dataDiskFirstColumn = xls.managedDataDiskColumns['firstColumnIndex']
 dataDiskPrefix = xls.managedDataDiskColumns['prefix']
 dataDiskColumnWidth = xls.managedDataDiskColumns['width']
+units = xls.managedDataDiskColumns['width']
 
 	#STANDARD DATA DISKS
 for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceReaderManagedDisk.standardDiskSizes) ):
@@ -283,9 +285,9 @@ for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceRead
 	diskDataIndexInDiskTab = diskIndex + 2 
 	for rowIndex in range(1,xls.rowsForVMInput):
 		if diskIndex == 0:
-			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}<='azure-standard-disk-prices'!G{4}, {3}{1}>0),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
+			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}<='azure-standard-disk-prices'!G{4}, {3}{1}>0), ( 1+IF({5}{1}=\"YES\",1))*{6}{1},\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 		else:
-			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}>'azure-standard-disk-prices'!G{4},{3}{1} <='azure-standard-disk-prices'!G{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab)
+			formula ="=IF(AND({0}{1}=\"STANDARD\",{2}{1}=\"YES\",{3}{1}>'azure-standard-disk-prices'!G{4},{3}{1} <='azure-standard-disk-prices'!G{6}),( 1+IF({5}{1}=\"YES\",1))*{7}{1},\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab, xls.getCustomerDataColumn('UNITS'))
 		customerVMDataExcelTab.write_formula(rowIndex, columnIndex, formula, selectBodyStyle)	
 		
 	#PREMIUM DATA DISKS
@@ -301,9 +303,9 @@ for diskIndex in range(xls.managedDataDiskColumns['firstCellRow'], len(priceRead
 	diskDataIndexInDiskTab = diskIndex + 2
 	for rowIndex in range(1,xls.rowsForVMInput):
 		if diskIndex == 0:
-			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}<'azure-premium-disk-prices'!G{4},{3}{1}>0),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn)
+			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}<'azure-premium-disk-prices'!G{4},{3}{1}>0),   ( 1+IF({5}{1}=\"YES\",1))*{6}{1},\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 		else:
-			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}>'azure-premium-disk-prices'!G{4},{3}{1}<'azure-premium-disk-prices'!G{6}),1+IF({5}{1}=\"YES\",1),\"\")".format(dataDiskTypeColumn, rowIndex, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab)
+			formula ="=IF(AND({0}{1}=\"PREMIUM\",{2}{1}=\"YES\",{3}{1}>'azure-premium-disk-prices'!G{4},{3}{1}<'azure-premium-disk-prices'!G{6}),( 1+IF({5}{1}=\"YES\",1))*{7}{1},\"\")".format(dataDiskTypeColumn, rowIndex + 1, dataOKColumn, dataDiskSizeColumn, diskDataIndexInDiskTab - 1, ASRColumn, diskDataIndexInDiskTab, xls.getCustomerDataColumn('UNITS'))
 		customerVMDataExcelTab.write_formula(rowIndex, columnIndex, formula, selectBodyStyle)	
 
 #7 - BLOCK 5 - ASR CALCULATION COLUMNS
@@ -334,31 +336,31 @@ customerVMDataExcelTab.write(xls.managedS10OSDiskColumn['firstCellRow'], xls.man
 customerVMDataExcelTab.write(xls.managedP10OSDiskColumn['firstCellRow'], xls.managedP10OSDiskColumn['firstColumnIndex'], xls.managedP10OSDiskColumn['name'] , selectHeaderStyle)
 
 	#ROWS
-formulaDiskOSS4Pattern="=IF(AND({0}{1}=\"S4\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
-formulaDiskOSP4Pattern="=IF(AND({0}{1}=\"P4\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
-formulaDiskOSS6Pattern="=IF(AND({0}{1}=\"S6\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
-formulaDiskOSP6Pattern="=IF(AND({0}{1}=\"P6\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
-formulaDiskOSS10Pattern="=IF(AND({0}{1}=\"S10\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
-formulaDiskOSP10Pattern="=IF(AND({0}{1}=\"P10\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1) ,\"\")"
+formulaDiskOSS4Pattern ="=IF(AND({0}{1}=\"S4\",  {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1)*{4}{1} ,\"\")"
+formulaDiskOSP4Pattern ="=IF(AND({0}{1}=\"P4\",  {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1)*{4}{1} ,\"\")"
+formulaDiskOSS6Pattern ="=IF(AND({0}{1}=\"S6\",  {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1)*{4}{1} ,\"\")"
+formulaDiskOSP6Pattern ="=IF(AND({0}{1}=\"P6\",  {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1)*{4}{1} ,\"\")"
+formulaDiskOSS10Pattern="=IF(AND({0}{1}=\"S10\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1)*{4}{1} ,\"\")"
+formulaDiskOSP10Pattern="=IF(AND({0}{1}=\"P10\", {2}{1}=\"YES\"), IF({3}{1}=\"YES\",2,1)*{4}{1} ,\"\")"
 
 for rowIndex in range(1,xls.rowsForVMInput):	
 	#COUNT OS STANDARD
-	formulaDiskOSStandard=formulaDiskOSS4Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn)
+	formulaDiskOSStandard=formulaDiskOSS4Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, xls.managedS4OSDiskColumn['firstColumnIndex'], formulaDiskOSStandard, selectBodyStyle)
 	
-	formulaDiskOSPremium =formulaDiskOSP4Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn)
+	formulaDiskOSPremium =formulaDiskOSP4Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, xls.managedP4OSDiskColumn['firstColumnIndex'] , formulaDiskOSPremium, selectBodyStyle)
 	
-	formulaDiskOSStandard=formulaDiskOSS6Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn)
+	formulaDiskOSStandard=formulaDiskOSS6Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, xls.managedS6OSDiskColumn['firstColumnIndex'], formulaDiskOSStandard, selectBodyStyle)
 	
-	formulaDiskOSPremium =formulaDiskOSP6Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn)
+	formulaDiskOSPremium =formulaDiskOSP6Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, xls.managedP6OSDiskColumn['firstColumnIndex'] , formulaDiskOSPremium, selectBodyStyle)
 
-	formulaDiskOSStandard=formulaDiskOSS10Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn)
+	formulaDiskOSStandard=formulaDiskOSS10Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, xls.managedS10OSDiskColumn['firstColumnIndex'], formulaDiskOSStandard, selectBodyStyle)
 	
-	formulaDiskOSPremium =formulaDiskOSP10Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn)
+	formulaDiskOSPremium =formulaDiskOSP10Pattern.format(osDiskSizeColumn , rowIndex+1, dataOKColumn, ASRColumn, xls.getCustomerDataColumn('UNITS'))
 	customerVMDataExcelTab.write_formula(rowIndex, xls.managedP10OSDiskColumn['firstColumnIndex'] , formulaDiskOSPremium, selectBodyStyle)
 
 #SSD CHECK
@@ -373,20 +375,29 @@ for rowIndex in range(1,xls.rowsForVMInput):
 #ASR COST
 customerVMDataExcelTab.set_column(xls.asrPriceColumn['firstColumnIndex'], xls.asrPriceColumn['firstColumnIndex'], xls.asrPriceColumn['width']) 
 customerVMDataExcelTab.write(xls.asrPriceColumn['firstCellRow'],          xls.asrPriceColumn['firstColumnIndex'], xls.asrPriceColumn['name'] , selectHeaderStyle)
-formulaASRPricePattern="=IF({0}{1}=1, IFERROR(VLOOKUP({2}{1}, 'azure-asr-prices'!A$2:B${3} ,2,0), 0 ) ,\"\" )"
+formulaASRPricePattern="=IF({0}{1}=1, IFERROR(VLOOKUP({2}{1}, 'azure-asr-prices'!A$2:B${3} ,2,0)*{4}{1}, 0 ) ,\"\" )"
 
-#DISK COST
+#DATA DISK COST
 customerVMDataExcelTab.set_column(xls.diskPriceColumn['firstColumnIndex'], xls.diskPriceColumn['firstColumnIndex'], xls.diskPriceColumn['width']) 
 customerVMDataExcelTab.write(xls.diskPriceColumn['firstCellRow'],          xls.diskPriceColumn['firstColumnIndex'], xls.diskPriceColumn['name'] , selectHeaderStyle)
-formulaDiskPricePattern="=_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S4\")  * IF(AG{0}=\"\", 0,1) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S6\")  * IF(AH{0}=\"\", 0,1) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S10\") * IF(AI{0}=\"\", 0,1) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S15\") * IF(AJ{0}=\"\", 0,1) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S20\") * IF(AK{0}=\"\", 0,1) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S30\") * IF(AL{0}=\"\", 0,1) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S40\") * IF(AM{0}=\"\", 0,1) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S50\") * IF(AN{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P4\")  * IF(AO{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P6\")  * IF(AP{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P10\") * IF(AQ{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P15\") * IF(AR{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P20\") * IF(AS{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P30\") * IF(AT{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P40\") * IF(AU{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P50\") * IF(AV{0}=\"\", 0,1) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1},  'azure-premium-disk-prices'!A2:A{1},  \"=\" & I{0}, 'azure-premium-disk-prices'!B2:B{1},  \"=\"&L{0}) + _xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & I{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=\"&L{0})* IF(S{0}=\"NO\", 0,1)"
+formulaDataDiskPricePattern="=_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S4\")  * IF(AH{0}=\"\", 0,AH{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S6\")  * IF(AI{0}=\"\", 0,AI{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S10\") * IF(AJ{0}=\"\", 0,AJ{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S15\") * IF(AK{0}=\"\", 0,AK{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S20\") * IF(AL{0}=\"\", 0,AL{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S30\") * IF(AM{0}=\"\", 0,AM{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S40\") * IF(AN{0}=\"\", 0,AN{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S50\") * IF(AO{0}=\"\", 0,AO{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P4\")  * IF(AP{0}=\"\", 0,AP{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P6\")  * IF(AQ{0}=\"\", 0,AQ{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P10\") * IF(AR{0}=\"\", 0,AR{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P15\") * IF(AS{0}=\"\", 0,AS{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P20\") * IF(AT{0}=\"\", 0,AT{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P30\") * IF(AU{0}=\"\", 0,AU{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P40\") * IF(AV{0}=\"\", 0,AV{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P50\") * IF(AW{0}=\"\", 0,AW{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1},  'azure-premium-disk-prices'!A2:A{1},  \"=\" & H{0}, 'azure-premium-disk-prices'!B2:B{1},  \"=\"&L{0}) + _xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=\"&L{0})* IF(T{0}=\"NO\", 0,1)"
+
+#OS DISK COST
+customerVMDataExcelTab.set_column(xls.osDiskPriceColumn['firstColumnIndex'], xls.osDiskPriceColumn['firstColumnIndex'], xls.osDiskPriceColumn['width']) 
+customerVMDataExcelTab.write(     xls.osDiskPriceColumn['firstCellRow'],     xls.osDiskPriceColumn['firstColumnIndex'], xls.osDiskPriceColumn['name'] , selectHeaderStyle)
+formulaOSDiskPricePattern="=_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S4\")  * IF(AY{0}=\"\", 0,AY{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S6\")  * IF(BA{0}=\"\", 0,BA{0}) +_xlfn.MINIFS('azure-standard-disk-prices'!D2:D{2}, 'azure-standard-disk-prices'!A2:A{2}, \"=\" & J{0}, 'azure-standard-disk-prices'!B2:B{2}, \"=S10\") * IF(BC{0}=\"\", 0,BC{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P4\")  * IF(AZ{0}=\"\", 0,AZ{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P6\")  * IF(BB{0}=\"\", 0,BB{0}) +_xlfn.MINIFS('azure-premium-disk-prices'!D2:D{1}, 'azure-premium-disk-prices'!A2:A{1}, \"=\" & J{0}, 'azure-premium-disk-prices'!B2:B{1}, \"=P10\") * IF(BD{0}=\"\", 0,BD{0}) "
+
 
 #DISK AND ASR
 for rowIndex in range(1,xls.rowsForVMInput):
-	formulaASRPrice=formulaASRPricePattern.format(xls.getColumnLetterFromIndex(xls.ASRColumns['firstColumnIndex']) , rowIndex+1, regionColumn, len(siteRecoveryPriceMatrix)+1)
+	formulaASRPrice=formulaASRPricePattern.format(xls.getColumnLetterFromIndex(xls.ASRColumns['firstColumnIndex']) , rowIndex+1, regionColumn, len(siteRecoveryPriceMatrix)+1, xls.getCustomerDataColumn('UNITS') )
 	customerVMDataExcelTab.write(rowIndex,  xls.asrPriceColumn['firstColumnIndex'],  formulaASRPrice , selectBodyStyle)
 
-	formulaDiskPrice=formulaDiskPricePattern.format( rowIndex+1, 277, 277)
-	customerVMDataExcelTab.write(rowIndex,  xls.diskPriceColumn['firstColumnIndex'],  formulaDiskPrice , selectBodyStyle)
+	formulaDataDiskPrice=formulaDataDiskPricePattern.format( rowIndex+1, 371, 367)
+	customerVMDataExcelTab.write(rowIndex,  xls.diskPriceColumn['firstColumnIndex'],  formulaDataDiskPrice , selectBodyStyle)
+
+	formulaOSDiskPrice=formulaOSDiskPricePattern.format( rowIndex+1, 371, 367)
+	customerVMDataExcelTab.write(rowIndex,  xls.osDiskPriceColumn['firstColumnIndex'],  formulaOSDiskPrice , selectBodyStyle)
 	
 #9 - BLOCK 7 - DATA DISK SUMMARY
 	#CALCULATE AND PUT HEADER
@@ -459,7 +470,7 @@ for row in xls.OSDiskSummary['rows']:
 	
 #11 - BLOCK 9 - COST SUMMARY
 formulaTotalComputeCost="=SUM({0}1:{0}{1})".format(columnBestYearVMPrice, xls.rowsForVMInput + 1)
-formulaTotalDiskCost="=12*( SUM(BF2:BF{0}) )".format(xls.rowsForVMInput+1)
+formulaTotalDiskCost="=12*( SUM(BG2:BG{0}) + SUM(BH2:BH{0}) )".format(xls.rowsForVMInput+1)
 formulaTotalASRCost ="=12*SUM({0}{1}:{0}{2})".format(xls.getColumnLetterFromIndex(xls.asrPriceColumn['firstColumnIndex']), xls.ASRColumns['firstCellRow'] + 1, xls.rowsForVMInput + 1)
 formulaTotalCost="=SUM(B{0}:B{1})".format(xls.costSummary['firstCellRow'] + 2, xls.costSummary['firstCellRow'] + 2 + len(xls.costSummary['rows']) - 2)
 	#CALCULATE AND PUT HEADER

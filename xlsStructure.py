@@ -31,7 +31,7 @@ class xlsStructure:
 		'firstColumnIndex' : 4,	
 		'columns': {
 			'VM NAME' : {
-				'alias' : 'VM NAME',
+				'alias' : 'VM NAME OR TYPE',
 				'width' : 20,
 				'index' : 0,
 				'default' : ''
@@ -54,79 +54,85 @@ class xlsStructure:
 				'index' : 3,
 				'default' : ''
 			},
+			'UNITS' : {
+				'alias' : 'UNITS',
+				'width' : 8,
+				'index' : 4,
+				'default' : 1
+			},
 			'REGION' : {
 				'alias' : 'REGION',
 				'width' : 20,
-				'index' : 4,
+				'index' : 5,
 				'default' : 'europe-west',
 				'validationList' : '=$' + alphabet[regionListColumn] + '$1:$' + alphabet[regionListColumn] + '$36'
 			},
 			'LICENSE' : {
 				'alias' : 'LICENSE',
 				'width' : 9,
-				'index' : 5,
+				'index' : 6,
 				'default' : 'linux',
 				'validationList' : ['linux', 'windows']
 			},
 			'DATA STORAGE TYPE' : {
 				'alias' : 'DATA STORAGE TYPE',
 				'width' : 18,
-				'index' : 6,
+				'index' : 7,
 				'default' : 'STANDARD',
 				'validationList' : ['STANDARD', 'PREMIUM']
 			},
 			'OS DISK' : {
 				'alias' : 'OS DISK',
 				'width' : 8,
-				'index' : 7,
+				'index' : 8,
 				'default' : 'S4',
 				'validationList' : ['S4', 'S6', 'S10', 'P4', 'P6', 'P10']
 			},
 			'SAP' : {
 				'alias' : 'SAP',
 				'width' : 4,
-				'index' : 8,
+				'index' : 9,
 				'default' : 'NO',
 				'validationList' : ['YES', 'NO']
 			},
 			'GPU' : {
 				'alias' : 'GPU',
 				'width' : 4,
-				'index' : 9,
+				'index' : 10,
 				'default' : 'NO',
 				'validationList' : ['YES', 'NO']
 			},
 			'ASR' : {
 				'alias' : 'ASR',
 				'width' : 4,
-				'index' : 10,
+				'index' : 11,
 				'default' : 'NO',
 				'validationList' : ['YES', 'NO']
 			},
 			'HOURS/MONTH' : {
 				'alias': 'HOURS/MONTH',
 				'width' : 15,
-				'index' : 11,
+				'index' : 12,
 				'default' : 730
 			},
 			'USE B SERIES' : {
 				'alias' : 'USE B SERIES',
 				'width' : 12,
-				'index' : 12,
+				'index' : 13,
 				'default' : 'NO',
 				'validationList' : ['YES', 'NO']
 			},
 			'RESERVED INST' : {
 				'alias' : 'RESERVED INST.',
 				'width' : 15,
-				'index' : 13,
+				'index' : 14,
 				'default' : 'YES ALL',
 				'validationList' : ['YES ALL', 'YES 1Y', 'NO']
 			},
 			'ALL DATA OK' : {
 				'alias' : 'DATA OK',
 				'width' : 8,
-				'index' : 14,
+				'index' : 15,
 				'default' : ''
 			}
 		}	
@@ -285,10 +291,16 @@ class xlsStructure:
 
 	diskPriceColumn = {
 		'firstCellRow': 0,	
-		'name' : 'DISK PRICE',
-		'width' : 12,
+		'name' : 'DATA DISK PRICE',
+		'width' : 16,
 		'firstColumnIndex' : asrPriceColumn['firstColumnIndex'] + 1
 	}
+	osDiskPriceColumn = {
+		'firstCellRow': 0,	
+		'name' : 'OS DISK PRICE',
+		'width' : 15,
+		'firstColumnIndex' : diskPriceColumn['firstColumnIndex'] + 1
+	} 
 	
 	#BLOCK 7
 	dataDiskSummary = {
@@ -398,6 +410,13 @@ class xlsStructure:
 		columnIndex = xlsStructure.getCalculationColumnPositionInExcel(categoryIndexInVMCalculations)
 		columnLetter = xlsStructure.getColumnLetterFromIndex(columnIndex)
 		
+		return columnLetter
+
+	def getCustomerDataColumn(columnName):
+		categoryIndexInCustomerData = xlsStructure.customerInputColumns['columns'][columnName]['index']
+		columnIndex = xlsStructure.getCustomerDataColumnPositionInExcel(categoryIndexInCustomerData)
+		columnLetter = xlsStructure.getColumnLetterFromIndex(columnIndex)
+
 		return columnLetter
 		
 		
