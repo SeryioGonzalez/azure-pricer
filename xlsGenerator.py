@@ -134,7 +134,7 @@ selectBodyStyle.set_bg_color('#d8e4bc')
 ########################################################
 #####################PUT DISCLAIMERS####################
 ########################################################
-introTab.insert_image('A1', installationdir+'media/slide.jpg')
+introTab.insert_image('A1', 'media/slide.jpg')
 
 ########################################################
 #####################PUT DATA BLOCKS####################
@@ -226,9 +226,9 @@ formulaBestPricePattern     ="=IF({0}{1}=\"YES\",IF({2}{1}=\"YES\", MIN({3}{1}:{
 
 formulaBestPricePattern     ="=IF({0}{1}=\"YES\",  _xlfn.SWITCH({2}{1},  \"YES ALL\",  _xlfn.MINIFS({3}{1}:{4}{1}, {3}{1}:{4}{1}, \">0\"), \"YES 1Y\",  _xlfn.MINIFS({3}{1}:{5}{1}, {3}{1}:{5}{1}, \">0\"), \"NO\", {3}{1} ), \"\")"
 
-formulaVMBaseNamePattern    ="=IF({0}{1}=\"YES\", IF({3}{1}=\"YES\", VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"OK\" & IF(OR(K{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", L{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-base'!J$2:K${5}, 2, 0), VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"??\" & IF(OR(K{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", L{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-base'!J$2:K${5}, 2, 0)), \"\")"
-formulaVM1YNamePattern      ="=IF({0}{1}=\"YES\", IF({3}{1}=\"YES\", VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"OK\" & IF(OR(K{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", L{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-1Y'!J$2:K${5}  , 2, 0), VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"??\" & IF(OR(K{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", L{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-1Y'!J$2:K${5}, 2, 0)),   \"\")"
-formulaVM3YNamePattern      ="=IF({0}{1}=\"YES\", IF({3}{1}=\"YES\", VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"OK\" & IF(OR(K{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", L{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-3Y'!J$2:K${5}  , 2, 0), VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"??\" & IF(OR(K{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", L{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-3Y'!J$2:K${5}, 2, 0)),   \"\")"
+formulaVMBaseNamePattern    ="=IF({0}{1}=\"YES\", IF({3}{1}=\"YES\", VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"OK\" & IF(OR(L{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", M{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-base'!J$2:K${5}, 2, 0), VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"??\" & IF(OR(L{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", M{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-base'!J$2:K${5}, 2, 0)), \"\")"
+formulaVM1YNamePattern      ="=IF({0}{1}=\"YES\", IF({3}{1}=\"YES\", VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"OK\" & IF(OR(L{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", M{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-1Y'!J$2:K${5}  , 2, 0), VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"??\" & IF(OR(L{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", M{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-1Y'!J$2:K${5}, 2, 0)),   \"\")"
+formulaVM3YNamePattern      ="=IF({0}{1}=\"YES\", IF({3}{1}=\"YES\", VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"OK\" & IF(OR(L{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", M{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-3Y'!J$2:K${5}  , 2, 0), VLOOKUP({2}{1} & {6}{1} & {4}{1} & \"??\" & IF(OR(L{1}=\"PREMIUM\", ISNUMBER(SEARCH(\"P\", M{1} ) ) ), \"SDD\", \"???\" ),  'azure-vm-prices-3Y'!J$2:K${5}, 2, 0)),   \"\")"
 
 formulaVMBaseMinPricePattern="=IF({0}{1}=\"YES\", IF( B3=\"CPU+MEM\" , _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${2}, 'azure-vm-prices-base'!A$2:A${2}, \">=\"&{3}{1}*(100-{4})/100, 'azure-vm-prices-base'!B$2:B${2}, \">=\"&{5}{1}*(100-{4})/100, 'azure-vm-prices-base'!G$2:G${2},{6}{1}, 'azure-vm-prices-base'!H$2:H${2}, {7}{1}, 'azure-vm-prices-base'!D$2:D${2}, IF({8}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-base'!E$2:E${2}, IF({9}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-base'!F$2:F${2}, IF({10}{1}=\"NO\", \"NO\", \"*\"), 'azure-vm-prices-base'!I$2:I${2}, IF({11}{1}=\"YES\", \"YES\", \"*\") ), _xlfn.MINIFS('azure-vm-prices-base'!C$2:C${2}, 'azure-vm-prices-base'!B$2:B${2}, \">=\"&{5}{1}*(100-{4})/100, 'azure-vm-prices-base'!G$2:G${2},{6}{1}, 'azure-vm-prices-base'!H$2:H${2}, {7}{1}, 'azure-vm-prices-base'!D$2:D${2}, IF({8}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-base'!E$2:E${2}, IF({9}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-base'!F$2:F${2}, IF({10}{1}=\"NO\", \"NO\", \"*\"), 'azure-vm-prices-base'!I$2:I${2}, IF({11}{1}=\"YES\", \"YES\", \"*\") ) ) , \"\")"
 formulaVM1YMinPricePattern=  "=IF({0}{1}=\"YES\", IF( B3=\"CPU+MEM\" , _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${2},   'azure-vm-prices-1Y'!A$2:A${2},   \">=\"&{3}{1}*(100-{4})/100, 'azure-vm-prices-1Y'!B$2:B${2},   \">=\"&{5}{1}*(100-{4})/100, 'azure-vm-prices-1Y'!G$2:G${2},{6}{1},   'azure-vm-prices-1Y'!H$2:H${2},   {7}{1}, 'azure-vm-prices-1Y'!D$2:D${2},   IF({8}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-1Y'!E$2:E${2},   IF({9}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-1Y'!F$2:F${2},   IF({10}{1}=\"NO\", \"NO\", \"*\"), 'azure-vm-prices-1Y'!I$2:I${2},   IF({11}{1}=\"YES\", \"YES\", \"*\") ), _xlfn.MINIFS('azure-vm-prices-1Y'!C$2:C${2}, 'azure-vm-prices-1Y'!B$2:B${2}, \">=\"&{5}{1}*(100-{4})/100, 'azure-vm-prices-1Y'!G$2:G${2},{6}{1}, 'azure-vm-prices-1Y'!H$2:H${2}, {7}{1}, 'azure-vm-prices-1Y'!D$2:D${2}, IF({8}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-1Y'!E$2:E${2}, IF({9}{1}=\"YES\", \"YES\", \"*\"), 'azure-vm-prices-1Y'!F$2:F${2}, IF({10}{1}=\"NO\", \"NO\", \"*\"), 'azure-vm-prices-1Y'!I$2:I${2}, IF({11}{1}=\"YES\", \"YES\", \"*\") ) ) , \"\")"
@@ -605,7 +605,7 @@ currentLine1Y = 1
 currentLine3Y = 1
 
 	#DUMP API DATA
-for size in sorted(computePriceMatrix):
+for size in sorted(computePriceMatrix, reverse=True):
 
 	cpus = computePriceMatrix[size]['cpu']
 	mem  = computePriceMatrix[size]['ram']
