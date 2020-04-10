@@ -30,13 +30,13 @@ then
 fi
 
 sed "s/__DATE__/$dayOfToday/g" $readMeFileTemplate > $readMeFile
-cd $installationDir
 
-for oldFile in $(find aux/ -type f -name "Azure-Quote-Tool-*.xlsx" -mtime +$daysToDelete)
+for oldFile in $(find $excelFilesDir -type f -name "Azure-Quote-Tool-*.xlsx" -mtime +$daysToDelete)
 do
 	git rm $oldFile
 done
 
+cd $installationDir
 git add $excelFileOfToday $readMeFile
 git commit -m "Automatic build of $dayOfToday"
 git push
