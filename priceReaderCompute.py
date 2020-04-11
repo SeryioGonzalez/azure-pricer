@@ -5,6 +5,9 @@ import price_urls
 
 sapVMs=['a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'a11', 'd11', 'd12', 'd13', 'd14', 'ds11', 'ds12', 'ds13', 'ds14', 'ds11v2', 'ds12v2', 'ds13v2', 'ds14v2', 'ds15v2', 'gs1', 'gs2', 'gs3', 'gs4', 'gs5', 'm64ms', 'm128ms', 'm64s', 'm128s']
 
+payg_vm_price_public_api_url='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base/calculator/?culture=en-us&discount=mosp&currency=eur'
+res_inst_1year_vm_price_public_api_url='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base-one-year/calculator/?culture=en-us&discount=mosp&currency=eur'
+res_inst_3year_vm_price_public_api_url='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base-three-year/calculator/?culture=en-us&discount=mosp&currency=eur'
 
 
 def get3YeaPrice(sizeName, regionSizes3Year):

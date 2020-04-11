@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -xe
 
 day_of_today=$(date +%Y%m%d)
 installation_dir="/home/sergio/azure-pricer/"
@@ -18,8 +18,6 @@ echo "UPDATING CODE FROM REPO"
 
 
 python3 $installation_dir"xls_generator.py" $excel_file_of_today 
-
-git config --global user.name "seryiogonzalez"
 
 find $excel_file_of_today
 
