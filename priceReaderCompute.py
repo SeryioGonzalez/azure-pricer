@@ -1,11 +1,11 @@
 import urllib.request
 import json
 
+import price_urls
+
 sapVMs=['a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'a11', 'd11', 'd12', 'd13', 'd14', 'ds11', 'ds12', 'ds13', 'ds14', 'ds11v2', 'ds12v2', 'ds13v2', 'ds14v2', 'ds15v2', 'gs1', 'gs2', 'gs3', 'gs4', 'gs5', 'm64ms', 'm128ms', 'm64s', 'm128s']
 
-urlPriceBasePublicAPI='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base/calculator/?culture=en-us&discount=mosp&currency=eur'
-urlPrice1YeaPublicAPI='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base-one-year/calculator/?culture=en-us&discount=mosp&currency=eur'
-urlPrice3YeaPublicAPI='https://azure.microsoft.com/api/v2/pricing/virtual-machines-base-three-year/calculator/?culture=en-us&discount=mosp&currency=eur'
+
 
 def get3YeaPrice(sizeName, regionSizes3Year):
 	try:
@@ -60,11 +60,11 @@ def isSSD(cleanSizeName):
 		
 def getPriceMatrix(regions):
 	
-	with urllib.request.urlopen(urlPriceBasePublicAPI) as url:
+	with urllib.request.urlopen(payg_vm_price_public_api_url) as url:
 		dataBasePrice = json.loads(url.read().decode())	
-	with urllib.request.urlopen(urlPrice1YeaPublicAPI) as url:
+	with urllib.request.urlopen(res_inst_1year_vm_price_public_api_url) as url:
 		data1YeaPrice = json.loads(url.read().decode())
-	with urllib.request.urlopen(urlPrice3YeaPublicAPI) as url:
+	with urllib.request.urlopen(res_inst_3year_vm_price_public_api_url) as url:
 		data3YeaPrice = json.loads(url.read().decode())
 
 	allRegionsSizes = {}	
