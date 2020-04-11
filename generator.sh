@@ -2,26 +2,26 @@
 
 set -x
 
-dayOfToday=$(date +%Y%m%d)
-installationDir="/home/sergio/azure-pricer/"
-excelFilesDir=$installationDir"output/"
-daysToDelete=30
+day_of_today=$(date +%Y%m%d)
+installation_dir="/home/sergio/azure-pricer/"
+excel_files_dir=$installation_dir"output/"
+max_number_of_xls_files=30
 
-excelFileOfToday=$excelFilesDir"Azure-Quote-Tool-$dayOfToday.xlsx"
-readMeFileTemplate=$excelFilesDir"README.MD.template"
-readMeFile=$installationDir"README.MD"
+excel_file_of_today=$excel_files_dir"Azure-Quote-Tool-$day_of_today.xlsx"
+readme_file_template=$excel_files_dir"README.MD.template"
+readme_file=$installation_dir"README.MD"
 
-cd $installationDir
+cd $installation_dir
 
 git pull
 echo "UPDATING CODE FROM REPO"
 
 
-python3 $installationDir"xls_generator.py" $excelFileOfToday 
+python3 $installation_dir"xls_generator.py" $excel_file_of_today 
 
 git config --global user.name "seryiogonzalez"
 
-find $excelFileOfToday
+find $excel_file_of_today
 
 if [ $? -ne 0 ]
 then
@@ -29,14 +29,14 @@ then
 	exit
 fi
 
-sed "s/__DATE__/$dayOfToday/g" $readMeFileTemplate > $readMeFile
+sed "s/__DATE__/$day_of_today/g" $readme_file_template > $readme_file
 
-for oldFile in $(find $excelFilesDir -type f -name "Azure-Quote-Tool-*.xlsx" -mtime +$daysToDelete)
+for old_file in $(find $excel_files_dir -type f -name "Azure-Quote-Tool-*.xlsx" -mtime +$max_number_of_xls_files)
 do
-	git rm $oldFile
+	git rm $old_file
 done
 
-cd $installationDir
-git add $excelFileOfToday $readMeFile
-git commit -m "Automatic build of $dayOfToday"
+cd $installation_dir
+git add $excel_file_of_today $readme_file
+git commit -m "Automatic build of $day_of_today"
 git push
