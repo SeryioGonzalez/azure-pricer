@@ -17,7 +17,7 @@ git pull
 echo "UPDATING CODE FROM REPO"
 
 
-python3 $installationDir"xlsGenerator.py" $excelFileOfToday 
+python3 $installationDir"xls_generator.py" $excelFileOfToday 
 
 git config --global user.name "seryiogonzalez"
 

@@ -12,8 +12,8 @@ $ sudo apt install -y python3-pip
 $ pip3 install xlsxwriter
 
 #COMMAND REQUIRED FOR CREATING A SPREADSHEET
-# python3 xlsGenerator.py [nameOfOutputXLSFile]
-$ python3 xlsGenerator.py Azure-Quote-Tool-$(date +%d%m%y).xlsx
+# python3 xls_generator.py [nameOfOutputXLSFile]
+$ python3 xls_generator.py Azure-Quote-Tool-$(date +%d%m%y).xlsx
 $ ls -1
 Azure-Quote-Tool-020618.xlsx
 ```
