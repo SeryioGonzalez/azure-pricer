@@ -395,10 +395,10 @@ for rowIndex in range(1,xls.rowsForVMInput):
 	formulaASRPrice=formulaASRPricePattern.format(xls.getColumnLetterFromIndex(xls.ASRColumns['firstColumnIndex']) , rowIndex+1, regionColumn, len(siteRecoveryPriceMatrix)+1, xls.getCustomerDataColumn('UNITS') )
 	customerVMDataExcelTab.write(rowIndex,  xls.asrPriceColumn['firstColumnIndex'],  formulaASRPrice , selectBodyStyle)
 
-	formulaDataDiskPrice=formulaDataDiskPricePattern.format( rowIndex+1, 371, 367)
+	formulaDataDiskPrice=formulaDataDiskPricePattern.format( rowIndex+1, 600, 600)
 	customerVMDataExcelTab.write(rowIndex,  xls.diskPriceColumn['firstColumnIndex'],  formulaDataDiskPrice , selectBodyStyle)
 
-	formulaOSDiskPrice=formulaOSDiskPricePattern.format( rowIndex+1, 371, 367)
+	formulaOSDiskPrice=formulaOSDiskPricePattern.format( rowIndex+1, 600, 600)
 	customerVMDataExcelTab.write(rowIndex,  xls.osDiskPriceColumn['firstColumnIndex'],  formulaOSDiskPrice , selectBodyStyle)
 	
 #9 - BLOCK 7 - DATA DISK SUMMARY
