@@ -14,7 +14,7 @@ def getPriceMatrixStandard(regions):
 	keyWord='standardhdd-s'
 	
 	for region in regions:
-		regionSizes  = {region + "-" + str(data['size']) : {'price':data['prices'][region]['value'], 'name':diskName.upper().split("-")[1], 'region':region, 'size':data['size']} for (diskName,data) in dataBasePrice['offers'].items() if keyWord in diskName and 'snapshot' not in diskName and region in data['prices']}
+		regionSizes  = {region + "-" + str(data['size']) : {'price':data['prices'][region]['value'], 'name':diskName.upper().split("-")[1], 'region':region, 'size':data['size']} for (diskName,data) in dataBasePrice['offers'].items() if keyWord in diskName and 'snapshot' not in diskName and not 'disk-mount' in diskName and region in data['prices']}
 		allRegionsSizes.update(regionSizes)
 
 	return allRegionsSizes
@@ -27,7 +27,7 @@ def getPriceMatrixPremium(regions):
 	keyWord='premiumssd-p'
 	
 	for region in regions:
-		regionSizes  = {region + "-" + str(data['size']) : {'price':data['prices'][region]['value'], 'name':diskName.upper().split("-")[1], 'region':region, 'size':data['size']} for (diskName,data) in dataBasePrice['offers'].items() if keyWord in diskName and region in data['prices']}
+		regionSizes  = {region + "-" + str(data['size']) : {'price':data['prices'][region]['value'], 'name':diskName.upper().split("-")[1], 'region':region, 'size':data['size']} for (diskName,data) in dataBasePrice['offers'].items() if keyWord in diskName and not 'disk-mount' in diskName and region in data['prices']}
 		allRegionsSizes.update(regionSizes)
 
 	return allRegionsSizes
