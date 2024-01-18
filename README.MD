@@ -1,6 +1,6 @@
 # Azure Quote Estimation Tool
 
-The tool generates a spreadsheet like <a href="https://github.com/SeryioGonzalez/azure-pricer/raw/master/output/Azure-Quote-Tool-20240117.xlsx">Azure-Quote-Tool-20240117.xlsx</a>
+The tool generates a spreadsheet like <a href="https://github.com/SeryioGonzalez/azure-pricer/raw/master/output/Azure-Quote-Tool-20240118.xlsx">Azure-Quote-Tool-20240118.xlsx</a>
 
 Unofficial tool for an estimation on Azure VM migration projects.
 It generates a spreadsheet for performing calculations
