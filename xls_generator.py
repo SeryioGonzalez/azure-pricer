@@ -1,11 +1,14 @@
 #!/usr/bin/python3
 
 import datetime
-import xlsxwriter
+import json
 import sys
 import os
+import urllib.request
+import xlsxwriter
 
 from xlsStructure import xlsStructure as xls
+
 import priceReaderCompute
 import priceReaderManagedDisk
 import priceReaderSiteRecovery
@@ -14,7 +17,19 @@ workbookNamePattern = '/mnt/c/Users/segonza/Desktop/Azure-Quote-Tool-{}.xlsx'
 installation_dir = '/home/sergio/azure-pricer/' 
 regions=['germany-north', 'germany-west-central', 'south-africa-north', 'south-africa-west', 'switzerland-north', 'switzerland-west', 'uae-central', 'uae-north', 'asia-pacific-east', 'asia-pacific-southeast', 'australia-central', 'australia-central-2', 'australia-east','australia-southeast', 'brazil-south', 'canada-central', 'canada-east', 'central-india', 'europe-north', 'europe-west', 'france-central', 'france-south', 'germany-central', 'germany-northeast', 'japan-east', 'japan-west', 'korea-central', 'korea-south', 'south-india', 'united-kingdom-south', 'united-kingdom-west', 'us-central', 'us-east', 'us-east-2', 'usgov-arizona', 'usgov-iowa', 'usgov-texas', 'usgov-virginia', 'us-north-central', 'us-south-central', 'us-west', 'us-west-2', 'us-west-central', 'west-india', 'norway-east', 'norway-west']
 
-regions.sort()
+
+def get_region_list():
+	"""Get the list of regions from the command line arguments."""
+	with urllib.request.urlopen(priceReaderCompute.payg_vm_price_public_api_url) as url:
+		dataBasePrice = json.loads(url.read().decode())
+
+		region_list = [ region['slug'] for region in dataBasePrice['regions']]
+
+		region_list.sort()
+
+		return region_list
+
+regions = get_region_list()
 
 numVmSizesCheck   = 6900
 numASRSkusCheck   = 33
@@ -743,3 +758,7 @@ for size in xls.standardDisks:
 	currentLine += 1
 	
 workbook.close()    
+
+
+if __name__ == "__main__":
+	print(get_region_list())
